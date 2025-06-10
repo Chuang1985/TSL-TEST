@@ -72,10 +72,90 @@
             transform: translateY(-2px);
         }
 
-        .main-content {
+        /* 開始畫面樣式 */
+        .start-screen {
             display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            padding: 50px;
+            text-align: center;
+        }
+
+        .start-title {
+            font-size: 32px;
+            color: #4a90e2;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .start-instructions {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .exam-rules {
+            background: #f8f9fa;
+            border-left: 4px solid #4a90e2;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+
+        .exam-rules h3 {
+            color: #4a90e2;
+            margin-bottom: 15px;
+        }
+
+        .exam-rules ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .exam-rules li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .exam-rules li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: none; /* 預設隱藏，點擊開始後顯示 */
             height: 75vh;
             min-height: 600px;
+        }
+
+        .main-content.active {
+            display: flex;
         }
 
         .video-section {
@@ -336,6 +416,15 @@
                 border-left: none;
                 border-top: 3px solid #e0e0e0;
             }
+
+            .start-instructions {
+                font-size: 16px;
+            }
+
+            .start-btn {
+                padding: 15px 30px;
+                font-size: 20px;
+            }
         }
 
         .phase-indicator {
@@ -356,12 +445,47 @@
         <div class="header">
             <div class="exam-title">台灣手語理解能力測驗</div>
             <div class="timer-section">
-                <div class="timer" id="timer">剩餘時間: 10分00秒</div>
-                <button class="submit-btn" onclick="showSubmitModal()">交卷</button>
+                <div class="timer" id="timer">準備開始</div>
+                <button class="submit-btn" onclick="showSubmitModal()" style="display: none;" id="submitButton">交卷</button>
             </div>
         </div>
 
-        <div class="main-content">
+        <!-- 開始畫面 -->
+        <div class="start-screen" id="startScreen">
+            <div class="start-title">🤟 台灣手語理解能力測驗 🤟</div>
+            
+            <div class="start-instructions">
+                歡迎參加台灣手語理解能力測驗！<br>
+                請仔細閱讀以下說明，準備好後點擊開始按鈕。
+            </div>
+
+            <div class="exam-rules">
+                <h3>📋 考試規則</h3>
+                <ul>
+                    <li>考試時間：<strong>10分鐘</strong></li>
+                    <li>題目數量：<strong>4題</strong></li>
+                    <li>每題影片僅播放<strong>一次</strong>，無法暫停或重播</li>
+                    <li>無法返回上一題，請仔細作答</li>
+                    <li>每題答題時間限制：<strong>15秒</strong></li>
+                    <li>考試結束請務必點擊「交卷」按鈕</li>
+                </ul>
+            </div>
+
+            <div class="start-instructions">
+                <strong>⚠️ 注意事項：</strong><br>
+                • 請確保網路連線穩定<br>
+                • 建議使用電腦或平板進行測驗<br>
+                • 請在安靜的環境中專心作答<br>
+                • 開始後無法暫停，請確認準備完成
+            </div>
+
+            <button class="start-btn" onclick="startExam()">
+                🚀 開始考試
+            </button>
+        </div>
+
+        <!-- 考試主要內容 -->
+        <div class="main-content" id="mainContent">
             <div class="video-section">
                 <div class="video-container">
                     <video class="video-player" id="videoPlayer" preload="auto">
@@ -394,12 +518,12 @@
             </div>
         </div>
 
-        <div class="warning-notice">
+        <div class="warning-notice" style="display: none;" id="warningNotice">
             <strong>⚠️ 重要提醒：</strong> 
             本測驗為單向進行，無法返回上一題。影片僅播放一次，無法暫停或重播。請仔細觀看並及時作答。考試結束時請務必點擊「交卷」按鈕，未點擊將無法記錄答案。
         </div>
 
-        <div class="navigation">
+        <div class="navigation" style="display: none;" id="navigation">
             <div class="nav-info" id="navInfo">第 1 題 / 共 4 題</div>
             <button class="next-btn" id="nextBtn" disabled>下一題</button>
         </div>
@@ -421,51 +545,52 @@
     <script>
         // 測驗配置
         const examConfig = {
-            totalTime: 900, // 15分鐘（900秒）
-            videoWaitTime: 5, // 影片播放前等待5秒
-            answerTime: 25, // 每題答題時間25秒
+            totalTime: 600, // 10分鐘（600秒）
+            videoWaitTime: 3, // 影片播放前等待3秒
+            answerTime: 15, // 每題答題時間15秒
             autoNext: true // 自動進入下一題
         };
 
-        // 題目資料（使用佔位影片，實際使用時替換為真實影片URL）
+        // 題目資料
         const questions = [
-    {
-        id: 1,
-        title: "請根據影片中的台灣手語內容，選擇正確的意思：",
-        videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
-        options: ["主婦", "先生", "朋友", "店員"],
-        correctAnswer: 0
-    },
-    {
-        id: 2,
-        title: "請選擇影片中手語表達的正確含義：",
-        videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
-        options: ["狗", "兔子", "鳥", "蟲"],
-        correctAnswer: 1
-    },
-    {
-        id: 3,
-        title: "請選擇影片中手語所表示的運動項目：",
-        videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
-        options: ["高爾夫", "游泳", "門球", "籃球"],
-        correctAnswer: 2
-    },
-    {
-        id: 4,
-        title: "請選擇影片中手語表達的情緒或狀態：",
-        videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
-        options: ["生氣", "驚訝", "困擾", "疲累"],
-        correctAnswer: 3
-    }
-];
+            {
+                id: 1,
+                title: "請根據影片中的台灣手語內容，選擇正確的意思：",
+                videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
+                options: ["主婦", "先生", "朋友", "店員"],
+                correctAnswer: 0
+            },
+            {
+                id: 2,
+                title: "請選擇影片中手語表達的正確含義：",
+                videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
+                options: ["狗", "兔子", "鳥", "蟲"],
+                correctAnswer: 1
+            },
+            {
+                id: 3,
+                title: "請選擇影片中手語所表示的運動項目：",
+                videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
+                options: ["高爾夫", "游泳", "門球", "籃球"],
+                correctAnswer: 2
+            },
+            {
+                id: 4,
+                title: "請選擇影片中手語表達的情緒或狀態：",
+                videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
+                options: ["生氣", "驚訝", "困擾", "疲累"],
+                correctAnswer: 3
+            }
+        ];
 
         // 考試狀態
         let currentQuestion = 0;
         let answers = {};
         let timeLeft = examConfig.totalTime;
-        let questionPhase = 'waiting'; // waiting, playing, answering, finished
+        let questionPhase = 'waiting';
         let phaseTimeLeft = 0;
         let currentAnswer = null;
+        let examStarted = false;
 
         // DOM 元素
         const timer = document.getElementById('timer');
@@ -481,6 +606,24 @@
         const optionsList = document.getElementById('optionsList');
         const navInfo = document.getElementById('navInfo');
         const nextBtn = document.getElementById('nextBtn');
+
+        // 開始考試函數
+        function startExam() {
+            // 隱藏開始畫面
+            document.getElementById('startScreen').style.display = 'none';
+            
+            // 顯示考試內容
+            document.getElementById('mainContent').classList.add('active');
+            document.getElementById('warningNotice').style.display = 'block';
+            document.getElementById('navigation').style.display = 'flex';
+            document.getElementById('submitButton').style.display = 'block';
+            
+            // 標記考試已開始
+            examStarted = true;
+            
+            // 初始化考試
+            initExam();
+        }
 
         // 初始化考試
         function initExam() {
@@ -503,29 +646,27 @@
             navInfo.textContent = `第 ${question.id} 題 / 共 ${questions.length} 題`;
             
             // 強制清空並重新載入影片
-videoPlayer.src = '';
-videoPlayer.load();
-
-// 延遲載入新影片，避免衝突
-setTimeout(() => {
-    videoPlayer.src = question.videoUrl + '?t=' + new Date().getTime(); // 加入時間戳避免快取
-    videoPlayer.load();
-    
-    // 確保影片準備就緒
-    videoPlayer.onloadeddata = function() {
-        console.log('影片載入成功');
-    };
-    
-    videoPlayer.onerror = function() {
-        console.log('影片載入失敗，重試中...');
-        // 重試機制
-        setTimeout(() => {
-            videoPlayer.src = question.videoUrl + '?retry=' + Math.random();
+            videoPlayer.src = '';
             videoPlayer.load();
-        }, 1000);
-    };
-}, 500);
-                        
+            
+            // 延遲載入新影片，避免衝突
+            setTimeout(() => {
+                videoPlayer.src = question.videoUrl + '?t=' + new Date().getTime();
+                videoPlayer.load();
+                
+                videoPlayer.onloadeddata = function() {
+                    console.log('影片載入成功');
+                };
+                
+                videoPlayer.onerror = function() {
+                    console.log('影片載入失敗，重試中...');
+                    setTimeout(() => {
+                        videoPlayer.src = question.videoUrl + '?retry=' + Math.random();
+                        videoPlayer.load();
+                    }, 1000);
+                };
+            }, 500);
+            
             // 顯示選項（但暫時禁用）
             displayOptions(question.options, true);
             
@@ -623,7 +764,20 @@ setTimeout(() => {
             
             // 隱藏覆蓋層並播放影片
             videoOverlay.style.display = 'none';
-            videoPlayer.play();
+            
+            // 確保影片準備好再播放
+            videoPlayer.oncanplay = function() {
+                videoPlayer.play().catch(e => {
+                    console.log('自動播放失敗，但這是正常的瀏覽器安全機制');
+                });
+            };
+
+            // 如果已經準備好，直接播放
+            if (videoPlayer.readyState >= 3) {
+                videoPlayer.play().catch(e => {
+                    console.log('自動播放失敗，但這是正常的瀏覽器安全機制');
+                });
+            }
             
             // 監聽影片結束事件
             videoPlayer.onended = function() {
@@ -692,6 +846,8 @@ setTimeout(() => {
 
         // 更新總計時器
         function updateTimer() {
+            if (!examStarted) return;
+            
             if (timeLeft <= 0) {
                 alert('考試時間結束！系統將自動交卷。');
                 submitExam();
@@ -743,48 +899,3 @@ setTimeout(() => {
                 if (answers[questionIndex] === questions[questionIndex].correctAnswer) {
                     correctCount++;
                 }
-            });
-            
-            const score = Math.round((correctCount / questions.length) * 100);
-            
-            alert(`考試已完成！\n已回答：${answeredCount}/${questions.length} 題\n正確率：${correctCount}/${questions.length} (${score}分)\n答案已送出`);
-            
-            // 這裡可以添加實際的提交邏輯
-            console.log('提交的答案：', answers);
-            console.log('考試結果：', {
-                answeredCount,
-                correctCount,
-                score,
-                answers
-            });
-            
-            // 防止重複提交
-            document.querySelector('.submit-btn').disabled = true;
-            nextBtn.disabled = true;
-        }
-
-        // 防止意外離開頁面
-        window.addEventListener('beforeunload', function(e) {
-            if (questionPhase !== 'finished') {
-                e.preventDefault();
-                e.returnValue = '您確定要離開考試頁面嗎？未保存的答案將會遺失。';
-            }
-        });
-
-        // 防止右鍵和某些快捷鍵
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        document.addEventListener('keydown', function(e) {
-            // 防止F5刷新、F12開發者工具等
-            if (e.key === 'F5' || e.key === 'F12' || (e.ctrlKey && (e.key === 'r' || e.key === 'R'))) {
-                e.preventDefault();
-            }
-        });
-
-        // 初始化考試
-        initExam();
-    </script>
-</body>
-</html>
