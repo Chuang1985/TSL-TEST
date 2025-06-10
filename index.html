@@ -72,7 +72,6 @@
             transform: translateY(-2px);
         }
 
-        /* 開始畫面樣式 */
         .start-screen {
             display: flex;
             flex-direction: column;
@@ -149,7 +148,7 @@
         }
 
         .main-content {
-            display: none; /* 預設隱藏，點擊開始後顯示 */
+            display: none;
             height: 75vh;
             min-height: 600px;
         }
@@ -402,6 +401,18 @@
             color: white;
         }
 
+        .phase-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
@@ -425,18 +436,6 @@
                 padding: 15px 30px;
                 font-size: 20px;
             }
-        }
-
-        .phase-indicator {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -545,38 +544,38 @@
     <script>
         // 測驗配置
         const examConfig = {
-            totalTime: 600, // 10分鐘（600秒）
-            videoWaitTime: 3, // 影片播放前等待3秒
-            answerTime: 15, // 每題答題時間15秒
-            autoNext: true // 自動進入下一題
+            totalTime: 600,
+            videoWaitTime: 3,
+            answerTime: 15,
+            autoNext: true
         };
 
         // 題目資料
         const questions = [
             {
                 id: 1,
-                title: "請根據影片中的台灣手語內容，選擇正確的意思：",
+                title: "姊姊每天練習什麼三小時？",
                 videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
-                options: ["主婦", "先生", "朋友", "店員"],
+                options: ["寫書法", "畫畫", "唱歌", "跳舞"],
                 correctAnswer: 0
             },
             {
                 id: 2,
-                title: "請選擇影片中手語表達的正確含義：",
+                title: "爸爸喜歡哪一種飲料？",
                 videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
-                options: ["狗", "兔子", "鳥", "蟲"],
+                options: ["牛奶", "咖啡", "水", "茶"],
                 correctAnswer: 1
             },
             {
                 id: 3,
-                title: "請選擇影片中手語所表示的運動項目：",
+                title: "哥哥做什麼運動？",
                 videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
                 options: ["高爾夫", "游泳", "門球", "籃球"],
                 correctAnswer: 2
             },
             {
                 id: 4,
-                title: "請選擇影片中手語表達的情緒或狀態：",
+                title: "張老師現在心情如何?",
                 videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
                 options: ["生氣", "驚訝", "困擾", "疲累"],
                 correctAnswer: 3
@@ -609,19 +608,13 @@
 
         // 開始考試函數
         function startExam() {
-            // 隱藏開始畫面
             document.getElementById('startScreen').style.display = 'none';
-            
-            // 顯示考試內容
             document.getElementById('mainContent').classList.add('active');
             document.getElementById('warningNotice').style.display = 'block';
             document.getElementById('navigation').style.display = 'flex';
             document.getElementById('submitButton').style.display = 'block';
             
-            // 標記考試已開始
             examStarted = true;
-            
-            // 初始化考試
             initExam();
         }
 
@@ -631,7 +624,6 @@
             startQuestionPhase();
             updateTimer();
             
-            // 啟動主計時器
             setInterval(updateTimer, 1000);
             setInterval(updatePhase, 1000);
         }
@@ -645,11 +637,9 @@
             questionTitle.textContent = question.title;
             navInfo.textContent = `第 ${question.id} 題 / 共 ${questions.length} 題`;
             
-            // 強制清空並重新載入影片
             videoPlayer.src = '';
             videoPlayer.load();
             
-            // 延遲載入新影片，避免衝突
             setTimeout(() => {
                 videoPlayer.src = question.videoUrl + '?t=' + new Date().getTime();
                 videoPlayer.load();
@@ -667,14 +657,9 @@
                 };
             }, 500);
             
-            // 顯示選項（但暫時禁用）
             displayOptions(question.options, true);
-            
-            // 重置按鈕狀態
             nextBtn.disabled = true;
             nextBtn.textContent = currentQuestion === questions.length - 1 ? '完成測驗' : '下一題';
-            
-            // 重置當前答案
             currentAnswer = null;
         }
 
@@ -695,17 +680,13 @@
             });
 
             if (!disabled) {
-                // 綁定選項點擊事件
                 document.querySelectorAll('input[name="answer"]').forEach(radio => {
                     radio.addEventListener('change', function() {
                         if (questionPhase === 'answering') {
-                            // 移除其他選項的選中狀態
                             document.querySelectorAll('.option label').forEach(label => {
                                 label.classList.remove('selected');
                             });
-                            // 添加當前選項的選中狀態
                             this.parentElement.classList.add('selected');
-                            // 保存答案
                             currentAnswer = parseInt(this.value);
                             answers[currentQuestion] = currentAnswer;
                             nextBtn.disabled = false;
@@ -740,7 +721,6 @@
                         break;
                         
                     case 'playing':
-                        // 影片播放中，進度條由影片事件控制
                         break;
                         
                     case 'answering':
@@ -762,29 +742,24 @@
             videoStatus.textContent = '請仔細觀看手語內容';
             countdown.textContent = '影片播放中...';
             
-            // 隱藏覆蓋層並播放影片
             videoOverlay.style.display = 'none';
             
-            // 確保影片準備好再播放
             videoPlayer.oncanplay = function() {
                 videoPlayer.play().catch(e => {
-                    console.log('自動播放失敗，但這是正常的瀏覽器安全機制');
+                    console.log('自動播放失敗，但這是正常的');
                 });
             };
 
-            // 如果已經準備好，直接播放
             if (videoPlayer.readyState >= 3) {
                 videoPlayer.play().catch(e => {
-                    console.log('自動播放失敗，但這是正常的瀏覽器安全機制');
+                    console.log('自動播放失敗，但這是正常的');
                 });
             }
             
-            // 監聽影片結束事件
             videoPlayer.onended = function() {
                 startAnswerPhase();
             };
             
-            // 監聽影片進度
             videoPlayer.ontimeupdate = function() {
                 if (videoPlayer.duration) {
                     const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
@@ -798,15 +773,12 @@
             questionPhase = 'answering';
             phaseTimeLeft = examConfig.answerTime;
             
-            // 顯示覆蓋層
             videoOverlay.style.display = 'flex';
             phaseIndicator.textContent = '答題中';
             videoStatus.textContent = '請選擇正確答案';
             
-            // 啟用選項
             displayOptions(questions[currentQuestion].options, false);
             
-            // 如果之前已選過答案，恢復選擇狀態
             if (answers[currentQuestion] !== undefined) {
                 const radio = document.querySelector(`input[value="${answers[currentQuestion]}"]`);
                 if (radio) {
@@ -858,7 +830,6 @@
             const seconds = timeLeft % 60;
             timer.textContent = `剩餘時間: ${minutes}分${seconds.toString().padStart(2, '0')}秒`;
             
-            // 時間警告
             if (timeLeft <= 60) {
                 timer.style.color = '#ff6b6b';
             } else if (timeLeft <= 180) {
@@ -894,8 +865,47 @@
             const answeredCount = Object.keys(answers).length;
             let correctCount = 0;
             
-            // 計算正確答案數量
             Object.keys(answers).forEach(questionIndex => {
                 if (answers[questionIndex] === questions[questionIndex].correctAnswer) {
                     correctCount++;
                 }
+            });
+            
+            const score = Math.round((correctCount / questions.length) * 100);
+            
+            alert(`考試已完成！\n已回答：${answeredCount}/${questions.length} 題\n正確率：${correctCount}/${questions.length} (${score}分)\n答案已送出`);
+            
+            console.log('提交的答案：', answers);
+            console.log('考試結果：', {
+                answeredCount,
+                correctCount,
+                score,
+                answers
+            });
+            
+            document.querySelector('.submit-btn').disabled = true;
+            nextBtn.disabled = true;
+            document.getElementById('submitModal').style.display = 'none';
+        }
+
+        // 防止意外離開頁面
+        window.addEventListener('beforeunload', function(e) {
+            if (questionPhase !== 'finished') {
+                e.preventDefault();
+                e.returnValue = '您確定要離開考試頁面嗎？未保存的答案將會遺失。';
+            }
+        });
+
+        // 防止右鍵和某些快捷鍵
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F5' || e.key === 'F12' || (e.ctrlKey && (e.key === 'r' || e.key === 'R'))) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
