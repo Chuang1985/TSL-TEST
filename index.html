@@ -681,7 +681,8 @@
                 };
             }, 500);
             
-            displayOptions(question.options, true);
+            // 一開始就顯示可點擊的選項，而不是禁用狀態
+            displayOptions(question.options, false);
             nextBtn.disabled = true;
             nextBtn.textContent = currentQuestion === questions.length - 1 ? '完成測驗' : '下一題';
             currentAnswer = null;
@@ -706,8 +707,8 @@
             if (!disabled) {
                 document.querySelectorAll('input[name="answer"]').forEach(radio => {
                     radio.addEventListener('change', function() {
-                        // 允許在播放中和答題階段選擇答案
-                        if (questionPhase === 'answering' || questionPhase === 'playing') {
+                        // 允許在任何階段選擇答案（除了 finished）
+                        if (questionPhase !== 'finished') {
                             document.querySelectorAll('.option label').forEach(label => {
                                 label.classList.remove('selected');
                             });
@@ -728,6 +729,9 @@
             videoOverlay.style.display = 'flex';
             phaseIndicator.textContent = '準備中';
             videoStatus.textContent = '請準備觀看手語影片...';
+            
+            // 在準備階段就啟用選項，讓考生提前看到題目
+            displayOptions(questions[currentQuestion].options, false);
         }
 
         // 更新階段
@@ -884,8 +888,8 @@
 
         // 下一題按鈕事件
         nextBtn.addEventListener('click', function() {
-            // 允許在播放中或答題階段點擊下一題
-            if ((questionPhase === 'answering' || questionPhase === 'playing') && currentAnswer !== null) {
+            // 允許在任何階段點擊下一題（只要有選擇答案且考試未結束）
+            if (questionPhase !== 'finished' && currentAnswer !== null) {
                 if (currentQuestion < questions.length - 1) {
                     nextQuestion();
                 } else {
