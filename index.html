@@ -944,12 +944,6 @@ function submitExam() {
     nextBtn.disabled = true;
     document.getElementById('submitModal').style.display = 'none';
 }
-            
-            document.querySelector('.submit-btn').disabled = true;
-            nextBtn.disabled = true;
-            document.getElementById('submitModal').style.display = 'none';
-        }
-
         // 防止意外離開頁面
         window.addEventListener('beforeunload', function(e) {
             if (questionPhase !== 'finished') {
