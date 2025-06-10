@@ -475,7 +475,7 @@
                 • 開始後無法暫停，請確認準備完成
             </div>
 
-            <button class="start-btn" onclick="startExam()">
+            <button class="start-btn" id="startExamBtn">
                 🚀 開始考試
             </button>
         </div>
@@ -532,7 +532,7 @@
                 </div>
 
                 <div class="question-title" id="questionTitle">
-                    請仔細觀看手語影片，然後選擇正確的答案：
+                    請仔細觀看手語影片，然後選擇正確答案：
                 </div>
 
                 <ul class="options" id="optionsList">
@@ -614,21 +614,73 @@
         let phaseTimeLeft = 0;
         let currentAnswer = null;
         let examStarted = false;
+        let userIP = ''; // 儲存IP位置
 
-        // DOM 元素
-        const timer = document.getElementById('timer');
-        const videoPlayer = document.getElementById('videoPlayer');
-        const videoOverlay = document.getElementById('videoOverlay');
-        const videoStatus = document.getElementById('videoStatus');
-        const progressBar = document.getElementById('progressBar');
-        const countdown = document.getElementById('countdown');
-        const phaseIndicator = document.getElementById('phaseIndicator');
-        const questionNumber = document.getElementById('questionNumber');
-        const questionProgress = document.getElementById('questionProgress');
-        const questionTitle = document.getElementById('questionTitle');
-        const optionsList = document.getElementById('optionsList');
-        const navInfo = document.getElementById('navInfo');
-        const nextBtn = document.getElementById('nextBtn');
+        // DOM 元素 - 確保在 DOMContentLoaded 後才取得
+        let timer, videoPlayer, videoOverlay, videoStatus, progressBar, countdown;
+        let phaseIndicator, questionNumber, questionProgress, questionTitle;
+        let optionsList, navInfo, nextBtn;
+
+        // 等待 DOM 載入完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化 DOM 元素
+            timer = document.getElementById('timer');
+            videoPlayer = document.getElementById('videoPlayer');
+            videoOverlay = document.getElementById('videoOverlay');
+            videoStatus = document.getElementById('videoStatus');
+            progressBar = document.getElementById('progressBar');
+            countdown = document.getElementById('countdown');
+            phaseIndicator = document.getElementById('phaseIndicator');
+            questionNumber = document.getElementById('questionNumber');
+            questionProgress = document.getElementById('questionProgress');
+            questionTitle = document.getElementById('questionTitle');
+            optionsList = document.getElementById('optionsList');
+            navInfo = document.getElementById('navInfo');
+            nextBtn = document.getElementById('nextBtn');
+
+            // 綁定開始按鈕事件
+            const startBtn = document.getElementById('startExamBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', startExam);
+            }
+
+            // 綁定下一題按鈕事件
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function() {
+                    // 允許在任何階段點擊下一題（只要有選擇答案且考試未結束）
+                    if (questionPhase !== 'finished' && currentAnswer !== null) {
+                        if (currentQuestion < questions.length - 1) {
+                            nextQuestion();
+                        } else {
+                            showSubmitModal();
+                        }
+                    }
+                });
+            }
+
+            // 取得IP位置
+            getIPAddress();
+        });
+
+        // 取得IP位置
+        async function getIPAddress() {
+            // 簡化版本：直接使用時間戳記和瀏覽器資訊作為識別
+            try {
+                // 使用時間戳記和瀏覽器資訊生成唯一識別碼
+                const timestamp = new Date().toISOString();
+                const userAgent = navigator.userAgent.substring(0, 50);
+                const platform = navigator.platform;
+                const language = navigator.language;
+                
+                // 生成簡單的識別碼
+                userIP = `${platform}-${language}-${timestamp.substring(0, 10)}`;
+                console.log('使用者識別碼:', userIP);
+                
+            } catch (error) {
+                console.log('生成識別碼時發生錯誤，使用預設值');
+                userIP = 'Unknown-' + new Date().getTime();
+            }
+        }
 
         // 開始考試函數
         function startExam() {
@@ -900,23 +952,33 @@
                 
                 const answeredCount = Object.keys(answers).length;
                 let correctCount = 0;
+                let answerDetails = [];
                 
-                Object.keys(answers).forEach(questionIndex => {
-                    if (answers[questionIndex] === questions[questionIndex].correctAnswer) {
-                        correctCount++;
-                    }
-                });
+                // 計算每題對錯
+                for (let i = 0; i < questions.length; i++) {
+                    const userAnswer = answers[i];
+                    const correct = userAnswer === questions[i].correctAnswer;
+                    if (correct) correctCount++;
+                    
+                    answerDetails.push({
+                        questionId: i + 1,
+                        userAnswer: userAnswer !== undefined ? userAnswer : -1,
+                        correct: correct
+                    });
+                }
                 
-                const score = Math.round((correctCount / questions.length) * 100);
+                const score = correctCount * 2; // 每題2分
                 const studentName = prompt('時間到！請輸入您的姓名以完成提交：') || '匿名';
                 
                 // 準備資料
                 const examData = {
                     studentName: studentName,
                     answers: [answers[0], answers[1], answers[2], answers[3]],
+                    answerDetails: answerDetails,
                     correctCount: correctCount,
                     score: score,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    ipAddress: userIP
                 };
                 
                 // 隱藏考試內容，顯示結束畫面
@@ -961,18 +1023,6 @@
             timeLeft--;
         }
 
-        // 下一題按鈕事件
-        nextBtn.addEventListener('click', function() {
-            // 允許在任何階段點擊下一題（只要有選擇答案且考試未結束）
-            if (questionPhase !== 'finished' && currentAnswer !== null) {
-                if (currentQuestion < questions.length - 1) {
-                    nextQuestion();
-                } else {
-                    showSubmitModal();
-                }
-            }
-        });
-
         // 顯示交卷確認對話框
         function showSubmitModal() {
             document.getElementById('submitModal').style.display = 'block';
@@ -995,14 +1045,22 @@
             
             const answeredCount = Object.keys(answers).length;
             let correctCount = 0;
+            let answerDetails = [];
             
-            Object.keys(answers).forEach(questionIndex => {
-                if (answers[questionIndex] === questions[questionIndex].correctAnswer) {
-                    correctCount++;
-                }
-            });
+            // 計算每題對錯
+            for (let i = 0; i < questions.length; i++) {
+                const userAnswer = answers[i];
+                const correct = userAnswer === questions[i].correctAnswer;
+                if (correct) correctCount++;
+                
+                answerDetails.push({
+                    questionId: i + 1,
+                    userAnswer: userAnswer !== undefined ? userAnswer : -1,
+                    correct: correct
+                });
+            }
             
-            const score = Math.round((correctCount / questions.length) * 100);
+            const score = correctCount * 2; // 每題2分
             
             // 取得學生姓名
             const studentName = prompt('請輸入您的姓名：') || '匿名';
@@ -1011,9 +1069,11 @@
             const examData = {
                 studentName: studentName,
                 answers: [answers[0], answers[1], answers[2], answers[3]],
+                answerDetails: answerDetails,
                 correctCount: correctCount,
                 score: score,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                ipAddress: userIP
             };
             
             console.log('準備傳送的資料:', examData);
@@ -1065,7 +1125,8 @@
                     <strong>考生姓名：</strong>${studentName}<br>
                     <strong>已回答：</strong>${answeredCount}/${questions.length} 題<br>
                     <strong>正確答案：</strong>${correctCount}/${questions.length} 題<br>
-                    <strong>得分：</strong><span style="font-size: 24px; color: #28a745; font-weight: bold;">${score} 分</span>
+                    <strong>得分：</strong><span style="font-size: 24px; color: #28a745; font-weight: bold;">${score} 分</span><br>
+                    <strong>IP位置：</strong>${userIP}
                 </div>
             `;
             
