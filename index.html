@@ -502,10 +502,30 @@
             questionTitle.textContent = question.title;
             navInfo.textContent = `第 ${question.id} 題 / 共 ${questions.length} 題`;
             
-            // 載入影片
-            videoPlayer.src = question.videoUrl;
+            // 強制清空並重新載入影片
+videoPlayer.src = '';
+videoPlayer.load();
+
+// 延遲載入新影片，避免衝突
+setTimeout(() => {
+    videoPlayer.src = question.videoUrl + '?t=' + new Date().getTime(); // 加入時間戳避免快取
+    videoPlayer.load();
+    
+    // 確保影片準備就緒
+    videoPlayer.onloadeddata = function() {
+        console.log('影片載入成功');
+    };
+    
+    videoPlayer.onerror = function() {
+        console.log('影片載入失敗，重試中...');
+        // 重試機制
+        setTimeout(() => {
+            videoPlayer.src = question.videoUrl + '?retry=' + Math.random();
             videoPlayer.load();
-            
+        }, 1000);
+    };
+}, 500);
+                        
             // 顯示選項（但暫時禁用）
             displayOptions(question.options, true);
             
