@@ -884,7 +884,7 @@ function startExam() {
             document.getElementById('submitModal').style.display = 'none';
         }
 
-        // 提交考試
+       // 提交考試
         function submitExam() {
             const answeredCount = Object.keys(answers).length;
             let correctCount = 0;
@@ -897,14 +897,37 @@ function startExam() {
             
             const score = Math.round((correctCount / questions.length) * 100);
             
-            alert(`考試已完成！\n已回答：${answeredCount}/${questions.length} 題\n正確率：${correctCount}/${questions.length} (${score}分)\n答案已送出`);
+            // 準備傳送到 Google Sheets 的資料
+            const examData = {
+                studentName: prompt('請輸入您的姓名：') || '匿名',
+                answers: [
+                    answers[0], answers[1], answers[2], answers[3]
+                ],
+                correctCount: correctCount,
+                score: score,
+                timestamp: new Date().toISOString(),
+                ip: 'N/A'
+            };
             
-            console.log('提交的答案：', answers);
-            console.log('考試結果：', {
-                answeredCount,
-                correctCount,
-                score,
-                answers
+            // 傳送資料到 Google Sheets
+            fetch('https://script.google.com/macros/s/AKfycbxxN-VPtG5prnBbwfVgqKFwIfsGUh954qI5da59wKfk2hG0IjsdiBXtZtOBsKYN51GCyQ/exec', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(examData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`考試已完成並成功提交！\n姓名：${examData.studentName}\n已回答：${answeredCount}/${questions.length} 題\n正確率：${correctCount}/${questions.length} (${score}分)\n答案已記錄到系統中`);
+                } else {
+                    alert(`考試完成，但資料傳送失敗。\n本地結果：${score}分\n請聯絡管理員。`);
+                }
+            })
+            .catch(error => {
+                console.error('傳送失敗:', error);
+                alert(`考試完成！\n已回答：${answeredCount}/${questions.length} 題\n正確率：${correctCount}/${questions.length} (${score}分)\n注意：答案可能未成功傳送，請聯絡管理員。`);
             });
             
             document.querySelector('.submit-btn').disabled = true;
