@@ -706,7 +706,8 @@
             if (!disabled) {
                 document.querySelectorAll('input[name="answer"]').forEach(radio => {
                     radio.addEventListener('change', function() {
-                        if (questionPhase === 'answering') {
+                        // 允許在播放中和答題階段選擇答案
+                        if (questionPhase === 'answering' || questionPhase === 'playing') {
                             document.querySelectorAll('.option label').forEach(label => {
                                 label.classList.remove('selected');
                             });
@@ -731,6 +732,11 @@
 
         // 更新階段
         function updatePhase() {
+            // 如果考試已完成，停止所有計時器操作
+            if (questionPhase === 'finished') {
+                return;
+            }
+            
             if (phaseTimeLeft > 0) {
                 phaseTimeLeft--;
                 
@@ -763,10 +769,13 @@
         function startVideoPhase() {
             questionPhase = 'playing';
             phaseIndicator.textContent = '播放中';
-            videoStatus.textContent = '請仔細觀看手語內容';
+            videoStatus.textContent = '請仔細觀看手語內容並選擇答案';
             countdown.textContent = '影片播放中...';
             
             videoOverlay.style.display = 'none';
+            
+            // 影片開始播放時立即啟用選項
+            displayOptions(questions[currentQuestion].options, false);
             
             videoPlayer.oncanplay = function() {
                 videoPlayer.play().catch(e => {
@@ -816,6 +825,11 @@
 
         // 自動進入下一題
         function autoNextQuestion() {
+            // 檢查是否已經完成考試，避免重複操作
+            if (questionPhase === 'finished') {
+                return;
+            }
+            
             if (currentQuestion < questions.length - 1) {
                 nextQuestion();
             } else {
@@ -836,6 +850,11 @@
 
         // 完成考試
         function finishExam() {
+            // 檢查是否已經完成，避免重複觸發
+            if (questionPhase === 'finished') {
+                return;
+            }
+            
             questionPhase = 'finished';
             showSubmitModal();
         }
@@ -865,7 +884,8 @@
 
         // 下一題按鈕事件
         nextBtn.addEventListener('click', function() {
-            if (questionPhase === 'answering' && currentAnswer !== null) {
+            // 允許在播放中或答題階段點擊下一題
+            if ((questionPhase === 'answering' || questionPhase === 'playing') && currentAnswer !== null) {
                 if (currentQuestion < questions.length - 1) {
                     nextQuestion();
                 } else {
@@ -886,6 +906,14 @@
 
         // 提交考試
         function submitExam() {
+            // 防止重複提交
+            if (questionPhase === 'finished') {
+                return; // 如果已經提交過，直接返回
+            }
+            
+            // 立即設置為已完成狀態，防止重複提交
+            questionPhase = 'finished';
+            
             const answeredCount = Object.keys(answers).length;
             let correctCount = 0;
             
@@ -940,6 +968,7 @@
 注意：網路傳送可能失敗，請聯絡管理員確認。`);
             });
             
+            // 禁用所有按鈕，防止重複操作
             document.querySelector('.submit-btn').disabled = true;
             nextBtn.disabled = true;
             document.getElementById('submitModal').style.display = 'none';
