@@ -152,11 +152,7 @@
             height: 75vh;
             min-height: 600px;
         }
-
-        .main-content.active {
-            display: flex;
-        }
-
+        
         .video-section {
             flex: 2;
             background: #a8d8a8;
@@ -606,17 +602,44 @@
         const navInfo = document.getElementById('navInfo');
         const nextBtn = document.getElementById('nextBtn');
 
-        // 開始考試函數
-        function startExam() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('mainContent').classList.add('active');
-            document.getElementById('warningNotice').style.display = 'block';
-            document.getElementById('navigation').style.display = 'flex';
-            document.getElementById('submitButton').style.display = 'block';
-            
-            examStarted = true;
-            initExam();
-        }
+       // 開始考試函數
+function startExam() {
+    console.log('開始考試被點擊');
+    
+    // 隱藏開始畫面
+    const startScreen = document.getElementById('startScreen');
+    if (startScreen) {
+        startScreen.style.display = 'none';
+        console.log('開始畫面已隱藏');
+    }
+    
+    // 顯示考試內容
+    const mainContent = document.getElementById('mainContent');
+    if (mainContent) {
+        mainContent.style.display = 'flex';
+        console.log('考試內容已顯示');
+    }
+    
+    // 顯示其他元素
+    const warningNotice = document.getElementById('warningNotice');
+    if (warningNotice) {
+        warningNotice.style.display = 'block';
+    }
+    
+    const navigation = document.getElementById('navigation');
+    if (navigation) {
+        navigation.style.display = 'flex';
+    }
+    
+    const submitButton = document.getElementById('submitButton');
+    if (submitButton) {
+        submitButton.style.display = 'block';
+    }
+    
+    examStarted = true;
+    console.log('準備初始化考試');
+    initExam();
+}
 
         // 初始化考試
         function initExam() {
