@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣手語理解能力測驗</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft JhengHei", "微軟正黑體", Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .exam-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exam-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .timer-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .timer {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: flex;
+            height: 75vh;
+            min-height: 600px;
+        }
+
+        .video-section {
+            flex: 2;
+            background: #a8d8a8;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 30px;
+        }
+
+        .video-container {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            background: #000;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+        }
+
+        .video-status {
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .video-progress {
+            width: 80%;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .countdown {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .question-section {
+            flex: 1;
+            background: white;
+            padding: 30px;
+            border-left: 3px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .question-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4a90e2;
+        }
+
+        .question-progress {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-title {
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .options {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .option {
+            margin-bottom: 15px;
+        }
+
+        .option label {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .option label:hover {
+            background: #e3f2fd;
+            border-color: #4a90e2;
+            transform: translateX(5px);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+            accent-color: #4a90e2;
+        }
+
+        .option label.selected {
+            background: #fff3cd;
+            border-color: #ffc107;
+            font-weight: bold;
+        }
+
+        .option label.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .navigation {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-info {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .next-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-weight: bold;
+        }
+
+        .next-btn:hover:not(:disabled) {
+            background: #218838;
+        }
+
+        .next-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .warning-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 30px;
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            margin: 0 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .confirm-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .video-section {
+                min-height: 350px;
+            }
+            
+            .question-section {
+                border-left: none;
+                border-top: 3px solid #e0e0e0;
+            }
+        }
+
+        .phase-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="exam-container">
+        <div class="header">
+            <div class="exam-title">台灣手語理解能力測驗</div>
+            <div class="timer-section">
+                <div class="timer" id="timer">剩餘時間: 10分00秒</div>
+                <button class="submit-btn" onclick="showSubmitModal()">交卷</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="video-section">
+                <div class="video-container">
+                    <video class="video-player" id="videoPlayer" preload="auto">
+                        <!-- 這裡會動態載入影片 -->
+                    </video>
+                    <div class="video-overlay" id="videoOverlay">
+                        <div class="phase-indicator" id="phaseIndicator">準備中</div>
+                        <div class="video-status" id="videoStatus">影片準備中...</div>
+                        <div class="video-progress">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                        <div class="countdown" id="countdown"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-section">
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber">第 1 題</div>
+                    <div class="question-progress" id="questionProgress">台灣手語測驗 第1題/共4題</div>
+                </div>
+
+                <div class="question-title" id="questionTitle">
+                    請仔細觀看手語影片，然後選擇正確的答案：
+                </div>
+
+                <ul class="options" id="optionsList">
+                    <!-- 選項會動態載入 -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="warning-notice">
+            <strong>⚠️ 重要提醒：</strong> 
+            本測驗為單向進行，無法返回上一題。影片僅播放一次，無法暫停或重播。請仔細觀看並及時作答。考試結束時請務必點擊「交卷」按鈕，未點擊將無法記錄答案。
+        </div>
+
+        <div class="navigation">
+            <div class="nav-info" id="navInfo">第 1 題 / 共 4 題</div>
+            <button class="next-btn" id="nextBtn" disabled>下一題</button>
+        </div>
+    </div>
+
+    <!-- 交卷確認對話框 -->
+    <div id="submitModal" class="modal">
+        <div class="modal-content">
+            <h3>確認交卷</h3>
+            <p>您確定要提交答案並結束考試嗎？</p>
+            <p style="color: #dc3545; margin-top: 10px;">提交後將無法修改答案</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" onclick="closeSubmitModal()">取消</button>
+                <button class="modal-btn confirm-btn" onclick="submitExam()">確認交卷</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 測驗配置
+        const examConfig = {
+            totalTime: 600, // 10分鐘（600秒）
+            videoWaitTime: 3, // 影片播放前等待3秒
+            answerTime: 15, // 每題答題時間15秒
+            autoNext: true // 自動進入下一題
+        };
+
+        // 題目資料（使用佔位影片，實際使用時替換為真實影片URL）
+        const questions = [
+            {
+                id: 1,
+                title: "請根據影片中的台灣手語內容，選擇正確的意思：",
+                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", // 示例影片
+                options: ["主婦", "先生", "朋友", "店員"],
+                correctAnswer: 0
+            },
+            {
+                id: 2,
+                title: "請選擇影片中手語表達的正確含義：",
+                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", // 示例影片
+                options: ["狗", "兔子", "鳥", "蟲"],
+                correctAnswer: 1
+            },
+            {
+                id: 3,
+                title: "請選擇影片中手語所表示的運動項目：",
+                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", // 示例影片
+                options: ["高爾夫", "游泳", "門球", "籃球"],
+                correctAnswer: 2
+            },
+            {
+                id: 4,
+                title: "請選擇影片中手語表達的情緒或狀態：",
+                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", // 示例影片
+                options: ["生氣", "驚訝", "困擾", "疲累"],
+                correctAnswer: 3
+            }
+        ];
+
+        // 考試狀態
+        let currentQuestion = 0;
+        let answers = {};
+        let timeLeft = examConfig.totalTime;
+        let questionPhase = 'waiting'; // waiting, playing, answering, finished
+        let phaseTimeLeft = 0;
+        let currentAnswer = null;
+
+        // DOM 元素
+        const timer = document.getElementById('timer');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoOverlay = document.getElementById('videoOverlay');
+        const videoStatus = document.getElementById('videoStatus');
+        const progressBar = document.getElementById('progressBar');
+        const countdown = document.getElementById('countdown');
+        const phaseIndicator = document.getElementById('phaseIndicator');
+        const questionNumber = document.getElementById('questionNumber');
+        const questionProgress = document.getElementById('questionProgress');
+        const questionTitle = document.getElementById('questionTitle');
+        const optionsList = document.getElementById('optionsList');
+        const navInfo = document.getElementById('navInfo');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // 初始化考試
+        function initExam() {
+            displayQuestion();
+            startQuestionPhase();
+            updateTimer();
+            
+            // 啟動主計時器
+            setInterval(updateTimer, 1000);
+            setInterval(updatePhase, 1000);
+        }
+
+        // 顯示當前題目
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            
+            questionNumber.textContent = `第 ${question.id} 題`;
+            questionProgress.textContent = `台灣手語測驗 第${question.id}題/共${questions.length}題`;
+            questionTitle.textContent = question.title;
+            navInfo.textContent = `第 ${question.id} 題 / 共 ${questions.length} 題`;
+            
+            // 載入影片
+            videoPlayer.src = question.videoUrl;
+            videoPlayer.load();
+            
+            // 顯示選項（但暫時禁用）
+            displayOptions(question.options, true);
+            
+            // 重置按鈕狀態
+            nextBtn.disabled = true;
+            nextBtn.textContent = currentQuestion === questions.length - 1 ? '完成測驗' : '下一題';
+            
+            // 重置當前答案
+            currentAnswer = null;
+        }
+
+        // 顯示選項
+        function displayOptions(options, disabled = false) {
+            optionsList.innerHTML = '';
+            
+            options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.className = 'option';
+                li.innerHTML = `
+                    <label class="${disabled ? 'disabled' : ''}">
+                        <input type="radio" name="answer" value="${index}" ${disabled ? 'disabled' : ''}>
+                        ${index + 1}. ${option}
+                    </label>
+                `;
+                optionsList.appendChild(li);
+            });
+
+            if (!disabled) {
+                // 綁定選項點擊事件
+                document.querySelectorAll('input[name="answer"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (questionPhase === 'answering') {
+                            // 移除其他選項的選中狀態
+                            document.querySelectorAll('.option label').forEach(label => {
+                                label.classList.remove('selected');
+                            });
+                            // 添加當前選項的選中狀態
+                            this.parentElement.classList.add('selected');
+                            // 保存答案
+                            currentAnswer = parseInt(this.value);
+                            answers[currentQuestion] = currentAnswer;
+                            nextBtn.disabled = false;
+                        }
+                    });
+                });
+            }
+        }
+
+        // 開始題目階段
+        function startQuestionPhase() {
+            questionPhase = 'waiting';
+            phaseTimeLeft = examConfig.videoWaitTime;
+            videoOverlay.style.display = 'flex';
+            phaseIndicator.textContent = '準備中';
+            videoStatus.textContent = '請準備觀看手語影片...';
+        }
+
+        // 更新階段
+        function updatePhase() {
+            if (phaseTimeLeft > 0) {
+                phaseTimeLeft--;
+                
+                switch (questionPhase) {
+                    case 'waiting':
+                        countdown.textContent = `${phaseTimeLeft + 1} 秒後開始播放`;
+                        progressBar.style.width = `${((examConfig.videoWaitTime - phaseTimeLeft) / examConfig.videoWaitTime) * 100}%`;
+                        
+                        if (phaseTimeLeft === 0) {
+                            startVideoPhase();
+                        }
+                        break;
+                        
+                    case 'playing':
+                        // 影片播放中，進度條由影片事件控制
+                        break;
+                        
+                    case 'answering':
+                        countdown.textContent = `答題時間剩餘：${phaseTimeLeft} 秒`;
+                        progressBar.style.width = `${((examConfig.answerTime - phaseTimeLeft) / examConfig.answerTime) * 100}%`;
+                        
+                        if (phaseTimeLeft === 0) {
+                            autoNextQuestion();
+                        }
+                        break;
+                }
+            }
+        }
+
+        // 開始影片播放階段
+        function startVideoPhase() {
+            questionPhase = 'playing';
+            phaseIndicator.textContent = '播放中';
+            videoStatus.textContent = '請仔細觀看手語內容';
+            countdown.textContent = '影片播放中...';
+            
+            // 隱藏覆蓋層並播放影片
+            videoOverlay.style.display = 'none';
+            videoPlayer.play();
+            
+            // 監聽影片結束事件
+            videoPlayer.onended = function() {
+                startAnswerPhase();
+            };
+            
+            // 監聽影片進度
+            videoPlayer.ontimeupdate = function() {
+                if (videoPlayer.duration) {
+                    const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                }
+            };
+        }
+
+        // 開始答題階段
+        function startAnswerPhase() {
+            questionPhase = 'answering';
+            phaseTimeLeft = examConfig.answerTime;
+            
+            // 顯示覆蓋層
+            videoOverlay.style.display = 'flex';
+            phaseIndicator.textContent = '答題中';
+            videoStatus.textContent = '請選擇正確答案';
+            
+            // 啟用選項
+            displayOptions(questions[currentQuestion].options, false);
+            
+            // 如果之前已選過答案，恢復選擇狀態
+            if (answers[currentQuestion] !== undefined) {
+                const radio = document.querySelector(`input[value="${answers[currentQuestion]}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    radio.parentElement.classList.add('selected');
+                    currentAnswer = answers[currentQuestion];
+                    nextBtn.disabled = false;
+                }
+            }
+        }
+
+        // 自動進入下一題
+        function autoNextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                nextQuestion();
+            } else {
+                finishExam();
+            }
+        }
+
+        // 下一題
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+                startQuestionPhase();
+            } else {
+                finishExam();
+            }
+        }
+
+        // 完成考試
+        function finishExam() {
+            questionPhase = 'finished';
+            showSubmitModal();
+        }
+
+        // 更新總計時器
+        function updateTimer() {
+            if (timeLeft <= 0) {
+                alert('考試時間結束！系統將自動交卷。');
+                submitExam();
+                return;
+            }
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timer.textContent = `剩餘時間: ${minutes}分${seconds.toString().padStart(2, '0')}秒`;
+            
+            // 時間警告
+            if (timeLeft <= 60) {
+                timer.style.color = '#ff6b6b';
+            } else if (timeLeft <= 180) {
+                timer.style.color = '#ffa500';
+            }
+            
+            timeLeft--;
+        }
+
+        // 下一題按鈕事件
+        nextBtn.addEventListener('click', function() {
+            if (questionPhase === 'answering' && currentAnswer !== null) {
+                if (currentQuestion < questions.length - 1) {
+                    nextQuestion();
+                } else {
+                    showSubmitModal();
+                }
+            }
+        });
+
+        // 顯示交卷確認對話框
+        function showSubmitModal() {
+            document.getElementById('submitModal').style.display = 'block';
+        }
+
+        // 關閉交卷確認對話框
+        function closeSubmitModal() {
+            document.getElementById('submitModal').style.display = 'none';
+        }
+
+        // 提交考試
+        function submitExam() {
+            const answeredCount = Object.keys(answers).length;
+            let correctCount = 0;
+            
+            // 計算正確答案數量
+            Object.keys(answers).forEach(questionIndex => {
+                if (answers[questionIndex] === questions[questionIndex].correctAnswer) {
+                    correctCount++;
+                }
+            });
+            
+            const score = Math.round((correctCount / questions.length) * 100);
+            
+            alert(`考試已完成！\n已回答：${answeredCount}/${questions.length} 題\n正確率：${correctCount}/${questions.length} (${score}分)\n答案已送出`);
+            
+            // 這裡可以添加實際的提交邏輯
+            console.log('提交的答案：', answers);
+            console.log('考試結果：', {
+                answeredCount,
+                correctCount,
+                score,
+                answers
+            });
+            
+            // 防止重複提交
+            document.querySelector('.submit-btn').disabled = true;
+            nextBtn.disabled = true;
+        }
+
+        // 防止意外離開頁面
+        window.addEventListener('beforeunload', function(e) {
+            if (questionPhase !== 'finished') {
+                e.preventDefault();
+                e.returnValue = '您確定要離開考試頁面嗎？未保存的答案將會遺失。';
+            }
+        });
+
+        // 防止右鍵和某些快捷鍵
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            // 防止F5刷新、F12開發者工具等
+            if (e.key === 'F5' || e.key === 'F12' || (e.ctrlKey && (e.key === 'r' || e.key === 'R'))) {
+                e.preventDefault();
+            }
+        });
+
+        // 初始化考試
+        initExam();
+    </script>
+</body>
+</html>
