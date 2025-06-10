@@ -147,12 +147,12 @@
             font-weight: bold;
         }
 
-       .main-content {
-    display: none;
-        height: 75vh;
-    min-height: 600px;
-           flex-direction: row;
-}
+        .main-content {
+            display: none;
+            height: 75vh;
+            min-height: 600px;
+            flex-direction: row;
+        }
         
         .video-section {
             flex: 2;
@@ -603,44 +603,44 @@
         const navInfo = document.getElementById('navInfo');
         const nextBtn = document.getElementById('nextBtn');
 
-       // 開始考試函數
-function startExam() {
-    console.log('開始考試被點擊');
-    
-    // 隱藏開始畫面
-    const startScreen = document.getElementById('startScreen');
-    if (startScreen) {
-        startScreen.style.display = 'none';
-        console.log('開始畫面已隱藏');
-    }
-    
-    // 顯示考試內容
-    const mainContent = document.getElementById('mainContent');
-    if (mainContent) {
-        mainContent.style.display = 'flex';
-        console.log('考試內容已顯示');
-    }
-    
-    // 顯示其他元素
-    const warningNotice = document.getElementById('warningNotice');
-    if (warningNotice) {
-        warningNotice.style.display = 'block';
-    }
-    
-    const navigation = document.getElementById('navigation');
-    if (navigation) {
-        navigation.style.display = 'flex';
-    }
-    
-    const submitButton = document.getElementById('submitButton');
-    if (submitButton) {
-        submitButton.style.display = 'block';
-    }
-    
-    examStarted = true;
-    console.log('準備初始化考試');
-    initExam();
-}
+        // 開始考試函數
+        function startExam() {
+            console.log('開始考試被點擊');
+            
+            // 隱藏開始畫面
+            const startScreen = document.getElementById('startScreen');
+            if (startScreen) {
+                startScreen.style.display = 'none';
+                console.log('開始畫面已隱藏');
+            }
+            
+            // 顯示考試內容
+            const mainContent = document.getElementById('mainContent');
+            if (mainContent) {
+                mainContent.style.display = 'flex';
+                console.log('考試內容已顯示');
+            }
+            
+            // 顯示其他元素
+            const warningNotice = document.getElementById('warningNotice');
+            if (warningNotice) {
+                warningNotice.style.display = 'block';
+            }
+            
+            const navigation = document.getElementById('navigation');
+            if (navigation) {
+                navigation.style.display = 'flex';
+            }
+            
+            const submitButton = document.getElementById('submitButton');
+            if (submitButton) {
+                submitButton.style.display = 'block';
+            }
+            
+            examStarted = true;
+            console.log('準備初始化考試');
+            initExam();
+        }
 
         // 初始化考試
         function initExam() {
@@ -884,45 +884,45 @@ function startExam() {
             document.getElementById('submitModal').style.display = 'none';
         }
 
-       // 提交考試
-function submitExam() {
-    const answeredCount = Object.keys(answers).length;
-    let correctCount = 0;
-    
-    Object.keys(answers).forEach(questionIndex => {
-        if (answers[questionIndex] === questions[questionIndex].correctAnswer) {
-            correctCount++;
-        }
-    });
-    
-    const score = Math.round((correctCount / questions.length) * 100);
-    
-    // 取得學生姓名
-    const studentName = prompt('請輸入您的姓名：') || '匿名';
-    
-    // 準備傳送到 Google Sheets 的資料
-    const examData = {
-        studentName: studentName,
-        answers: [answers[0], answers[1], answers[2], answers[3]],
-        correctCount: correctCount,
-        score: score,
-        timestamp: new Date().toISOString()
-    };
-    
-    console.log('準備傳送的資料:', examData);
-    
-    // 傳送資料到 Google Sheets
-    fetch('https://script.google.com/macros/s/AKfycbyAaRWJHgBGM9zbK2pvrf8nrTAVJ9LFf3MZzFdjB_WV1nZM_QAQh4buGEyzxQJ_FLgBXQ/exec', {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(examData)
-    })
-    .then(() => {
-        // 因為 no-cors 模式無法讀取回應，假設成功
-        alert(`考試已完成並已提交！
+        // 提交考試
+        function submitExam() {
+            const answeredCount = Object.keys(answers).length;
+            let correctCount = 0;
+            
+            Object.keys(answers).forEach(questionIndex => {
+                if (answers[questionIndex] === questions[questionIndex].correctAnswer) {
+                    correctCount++;
+                }
+            });
+            
+            const score = Math.round((correctCount / questions.length) * 100);
+            
+            // 取得學生姓名
+            const studentName = prompt('請輸入您的姓名：') || '匿名';
+            
+            // 準備傳送到 Google Sheets 的資料
+            const examData = {
+                studentName: studentName,
+                answers: [answers[0], answers[1], answers[2], answers[3]],
+                correctCount: correctCount,
+                score: score,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('準備傳送的資料:', examData);
+            
+            // 傳送資料到 Google Sheets
+            fetch('https://script.google.com/macros/s/AKfycbyAaRWJHgBGM9zbK2pvrf8nrTAVJ9LFf3MZzFdjB_WV1nZM_QAQh4buGEyzxQJ_FLgBXQ/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(examData)
+            })
+            .then(() => {
+                // 因為 no-cors 模式無法讀取回應，假設成功
+                alert(`考試已完成並已提交！
 
 考生：${studentName}
 已回答：${answeredCount}/${questions.length} 題
@@ -932,18 +932,19 @@ function submitExam() {
 📊 請檢查 Google Sheets 確認資料
 
 謝謝您參加台灣手語理解能力測驗！`);
-    })
-    .catch(error => {
-        console.error('傳送失敗:', error);
-        alert(`考試完成！
+            })
+            .catch(error => {
+                console.error('傳送失敗:', error);
+                alert(`考試完成！
 本地結果：${score}分
 注意：網路傳送可能失敗，請聯絡管理員確認。`);
-    });
-    
-    document.querySelector('.submit-btn').disabled = true;
-    nextBtn.disabled = true;
-    document.getElementById('submitModal').style.display = 'none';
-}
+            });
+            
+            document.querySelector('.submit-btn').disabled = true;
+            nextBtn.disabled = true;
+            document.getElementById('submitModal').style.display = 'none';
+        }
+
         // 防止意外離開頁面
         window.addEventListener('beforeunload', function(e) {
             if (questionPhase !== 'finished') {
