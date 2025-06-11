@@ -615,6 +615,8 @@
         let currentAnswer = null;
         let examStarted = false;
         let userIP = ''; // 新增：儲存IP位置
+        let timerInterval = null; // 新增：計時器變數
+        let phaseInterval = null; // 新增：階段計時器變數
 
         // DOM 元素
         const timer = document.getElementById('timer');
@@ -700,8 +702,8 @@
             startQuestionPhase();
             updateTimer();
             
-            setInterval(updateTimer, 1000);
-            setInterval(updatePhase, 1000);
+            timerInterval = setInterval(updateTimer, 1000);
+            phaseInterval = setInterval(updatePhase, 1000);
         }
 
         // 顯示當前題目
@@ -923,6 +925,9 @@
                 // 時間到自動提交，顯示結束畫面
                 questionPhase = 'finished';
                 
+                // 停止所有計時器
+                stopAllTimers();
+                
                 const answeredCount = Object.keys(answers).length;
                 let correctCount = 0;
                 let answerDetails = [];
@@ -1018,6 +1023,25 @@
             document.getElementById('submitModal').style.display = 'none';
         }
 
+        // 停止所有計時器
+        function stopAllTimers() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            if (phaseInterval) {
+                clearInterval(phaseInterval);
+                phaseInterval = null;
+            }
+            
+            // 更新計時器顯示為結束狀態
+            const timer = document.getElementById('timer');
+            if (timer) {
+                timer.textContent = '測驗已結束';
+                timer.style.color = '#28a745'; // 綠色表示完成
+            }
+        }
+
         // 提交考試
         function submitExam() {
             // 防止重複提交
@@ -1027,6 +1051,9 @@
             
             // 立即設置為已完成狀態，防止重複提交
             questionPhase = 'finished';
+            
+            // 停止所有計時器
+            stopAllTimers();
             
             const answeredCount = Object.keys(answers).length;
             let correctCount = 0;
