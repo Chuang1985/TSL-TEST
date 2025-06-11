@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台灣手語理解能力測驗</title>
+    <title>臺灣手語理解能力測驗</title>
     <style>
         * {
             margin: 0;
@@ -439,7 +439,7 @@
 <body>
     <div class="exam-container">
         <div class="header">
-            <div class="exam-title">台灣手語理解能力測驗</div>
+            <div class="exam-title">臺灣手語理解能力測驗</div>
             <div class="timer-section">
                 <div class="timer" id="timer">準備開始</div>
                 <button class="submit-btn" onclick="showSubmitModal()" style="display: none;" id="submitButton">交卷</button>
@@ -448,10 +448,10 @@
 
         <!-- 開始畫面 -->
         <div class="start-screen" id="startScreen">
-            <div class="start-title">🤟 台灣手語理解能力測驗 🤟</div>
+            <div class="start-title">🤟 臺灣手語理解能力測驗 🤟</div>
             
             <div class="start-instructions">
-                歡迎參加台灣手語理解能力測驗！<br>
+                歡迎參加臺灣手語理解能力測驗！<br>
                 請仔細閱讀以下說明，準備好後點擊開始按鈕。
             </div>
 
@@ -485,7 +485,7 @@
             <div class="start-title">🎉 測驗完成 🎉</div>
             
             <div class="start-instructions">
-                感謝您參加台灣手語理解能力測驗！<br>
+                感謝您參加臺灣手語理解能力測驗！<br>
                 您的答案已成功提交至系統。
             </div>
 
@@ -528,7 +528,7 @@
             <div class="question-section">
                 <div class="question-header">
                     <div class="question-number" id="questionNumber">第 1 題</div>
-                    <div class="question-progress" id="questionProgress">台灣手語測驗 第1題/共4題</div>
+                    <div class="question-progress" id="questionProgress">臺灣手語測驗 第1題/共4題</div>
                 </div>
 
                 <div class="question-title" id="questionTitle">
@@ -711,7 +711,7 @@
             const question = questions[currentQuestion];
             
             questionNumber.textContent = `第 ${question.id} 題`;
-            questionProgress.textContent = `台灣手語測驗 第${question.id}題/共${questions.length}題`;
+            questionProgress.textContent = `臺灣手語測驗 第${question.id}題/共${questions.length}題`;
             questionTitle.textContent = question.title;
             navInfo.textContent = `第 ${question.id} 題 / 共 ${questions.length} 題`;
             
