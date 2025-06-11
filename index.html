@@ -614,6 +614,7 @@
         let phaseTimeLeft = 0;
         let currentAnswer = null;
         let examStarted = false;
+        let userIP = ''; // 新增：儲存IP位置
 
         // DOM 元素
         const timer = document.getElementById('timer');
@@ -629,6 +630,30 @@
         const optionsList = document.getElementById('optionsList');
         const navInfo = document.getElementById('navInfo');
         const nextBtn = document.getElementById('nextBtn');
+
+        // 新增：取得IP位置
+        async function getIPAddress() {
+            try {
+                // 使用時間戳記和瀏覽器資訊生成唯一識別碼
+                const timestamp = new Date().toISOString();
+                const userAgent = navigator.userAgent.substring(0, 50);
+                const platform = navigator.platform;
+                const language = navigator.language;
+                
+                // 生成簡單的識別碼
+                userIP = `${platform}-${language}-${timestamp.substring(0, 19)}`;
+                console.log('使用者識別碼:', userIP);
+                
+            } catch (error) {
+                console.log('生成識別碼時發生錯誤，使用預設值');
+                userIP = 'Unknown-' + new Date().getTime();
+            }
+        }
+
+        // 在頁面載入時取得IP
+        window.addEventListener('load', function() {
+            getIPAddress();
+        });
 
         // 開始考試函數
         function startExam() {
@@ -900,23 +925,33 @@
                 
                 const answeredCount = Object.keys(answers).length;
                 let correctCount = 0;
+                let answerDetails = [];
                 
-                Object.keys(answers).forEach(questionIndex => {
-                    if (answers[questionIndex] === questions[questionIndex].correctAnswer) {
-                        correctCount++;
-                    }
-                });
+                // 計算每題對錯
+                for (let i = 0; i < questions.length; i++) {
+                    const userAnswer = answers[i];
+                    const correct = userAnswer === questions[i].correctAnswer;
+                    if (correct) correctCount++;
+                    
+                    answerDetails.push({
+                        questionId: i + 1,
+                        userAnswer: userAnswer !== undefined ? userAnswer : -1,
+                        correct: correct
+                    });
+                }
                 
-                const score = Math.round((correctCount / questions.length) * 100);
+                const score = correctCount * 2; // 每題2分
                 const studentName = prompt('時間到！請輸入您的姓名以完成提交：') || '匿名';
                 
                 // 準備資料
                 const examData = {
                     studentName: studentName,
                     answers: [answers[0], answers[1], answers[2], answers[3]],
+                    answerDetails: answerDetails,
                     correctCount: correctCount,
                     score: score,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    ipAddress: userIP
                 };
                 
                 // 隱藏考試內容，顯示結束畫面
@@ -995,14 +1030,22 @@
             
             const answeredCount = Object.keys(answers).length;
             let correctCount = 0;
+            let answerDetails = [];
             
-            Object.keys(answers).forEach(questionIndex => {
-                if (answers[questionIndex] === questions[questionIndex].correctAnswer) {
-                    correctCount++;
-                }
-            });
+            // 計算每題對錯
+            for (let i = 0; i < questions.length; i++) {
+                const userAnswer = answers[i];
+                const correct = userAnswer === questions[i].correctAnswer;
+                if (correct) correctCount++;
+                
+                answerDetails.push({
+                    questionId: i + 1,
+                    userAnswer: userAnswer !== undefined ? userAnswer : -1,
+                    correct: correct
+                });
+            }
             
-            const score = Math.round((correctCount / questions.length) * 100);
+            const score = correctCount * 2; // 每題2分
             
             // 取得學生姓名
             const studentName = prompt('請輸入您的姓名：') || '匿名';
@@ -1011,9 +1054,11 @@
             const examData = {
                 studentName: studentName,
                 answers: [answers[0], answers[1], answers[2], answers[3]],
+                answerDetails: answerDetails,
                 correctCount: correctCount,
                 score: score,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                ipAddress: userIP
             };
             
             console.log('準備傳送的資料:', examData);
@@ -1028,7 +1073,7 @@
             showEndScreen(studentName, answeredCount, correctCount, score);
             
             // 傳送資料到 Google Sheets
-            fetch('https://script.google.com/macros/s/AKfycbwZ0JQaOUhgVRvogrLxG_MUfYycdNfULT3gSiS4HtsI8h8ID9s1RXfDx55V5DMEYI3d/exec', {
+            fetch('https://script.google.com/macros/s/AKfycbyAaRWJHgBGM9zbK2pvrf8nrTAVJ9LFf3MZzFdjB_WV1nZM_QAQh4buGEyzxQJ_FLgBXQ/exec', {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: {
@@ -1065,7 +1110,8 @@
                     <strong>考生姓名：</strong>${studentName}<br>
                     <strong>已回答：</strong>${answeredCount}/${questions.length} 題<br>
                     <strong>正確答案：</strong>${correctCount}/${questions.length} 題<br>
-                    <strong>得分：</strong><span style="font-size: 24px; color: #28a745; font-weight: bold;">${score} 分</span>
+                    <strong>得分：</strong><span style="font-size: 24px; color: #28a745; font-weight: bold;">${score} 分</span><br>
+                    <strong>識別碼：</strong>${userIP}
                 </div>
             `;
             
@@ -1075,7 +1121,7 @@
 
         // 防止意外離開頁面
         window.addEventListener('beforeunload', function(e) {
-            if (questionPhase !== 'finished') {
+            if (questionPhase !== 'finished' && examStarted) {
                 e.preventDefault();
                 e.returnValue = '您確定要離開考試頁面嗎？未保存的答案將會遺失。';
             }
