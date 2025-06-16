@@ -950,30 +950,68 @@
                 videoId: videoId,
                 playerVars: {
                     'autoplay': 1,
-                    'controls': 0,
-                    'disablekb': 1,
-                    'fs': 0,
-                    'modestbranding': 1,
-                    'rel': 0,
-                    'showinfo': 0
+                    'controls': 0,           // 隱藏控制列
+                    'disablekb': 1,          // 禁用鍵盤控制
+                    'fs': 0,                 // 禁用全螢幕
+                    'modestbranding': 1,     // 減少 YouTube 品牌標示
+                    'rel': 0,                // 不顯示相關影片
+                    'showinfo': 0,           // 隱藏影片資訊
+                    'iv_load_policy': 3,     // 隱藏影片註解
+                    'cc_load_policy': 0,     // 隱藏字幕
+                    'playsinline': 1,        // 行動裝置內嵌播放
+                    'widget_referrer': window.location.href,  // 設定來源
+                    'origin': window.location.origin,         // 設定來源網域
+                    'enablejsapi': 1         // 啟用 JavaScript API
                 },
                 events: {
                     'onReady': function(event) {
                         event.target.playVideo();
+                        console.log('YouTube 播放器準備完成');
                     },
                     'onStateChange': function(event) {
+                        console.log('YouTube 播放器狀態變更:', event.data);
+                        
                         // 當影片結束時 (狀態碼 0)
                         if (event.data === YT.PlayerState.ENDED) {
+                            console.log('影片播放結束，進入答題階段');
+                            // 立即隱藏播放器，避免看到相關影片
+                            hideYouTubePlayer();
                             startAnswerPhase();
                         }
                         
-                        // 更新進度條
+                        // 當影片開始播放時 (狀態碼 1)
                         if (event.data === YT.PlayerState.PLAYING) {
                             updateYouTubeProgress();
                         }
+                        
+                        // 當影片暫停時 (狀態碼 2) - 可選：自動繼續播放
+                        if (event.data === YT.PlayerState.PAUSED) {
+                            console.log('影片被暫停');
+                        }
+                    },
+                    'onError': function(event) {
+                        console.error('YouTube 播放器錯誤:', event.data);
+                        // 如果載入失敗，直接進入答題階段
+                        hideYouTubePlayer();
+                        startAnswerPhase();
                     }
                 }
             });
+        }
+
+        // 新增：隱藏 YouTube 播放器
+        function hideYouTubePlayer() {
+            const videoContainer = document.querySelector('.video-container');
+            if (window.ytPlayer && typeof window.ytPlayer.destroy === 'function') {
+                try {
+                    window.ytPlayer.destroy();
+                    console.log('YouTube 播放器已銷毀');
+                } catch (e) {
+                    console.log('銷毀播放器時出現錯誤，但這是正常的');
+                }
+            }
+            // 清空容器內容
+            videoContainer.innerHTML = '';
         }
 
         // 新增：更新 YouTube 影片進度條
@@ -1002,9 +1040,13 @@
             questionPhase = 'answering';
             phaseTimeLeft = examConfig.answerTime;
             
+            // 確保影片覆蓋層顯示
             videoOverlay.style.display = 'flex';
             phaseIndicator.textContent = '答題中';
             videoStatus.textContent = '請選擇正確答案';
+            
+            // 重置進度條為答題進度
+            progressBar.style.width = '0%';
             
             // 修正：答題階段才啟用選項
             canSelectAnswer = true;
@@ -1019,6 +1061,8 @@
                     currentAnswer = answers[currentQuestion];
                 }
             }
+            
+            console.log('答題階段開始，時間限制:', examConfig.answerTime, '秒');
         }
 
         // 新增：答題階段結束處理
