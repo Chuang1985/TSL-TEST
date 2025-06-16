@@ -829,14 +829,22 @@
         function startQuestionPhase() {
             questionPhase = 'waiting';
             phaseTimeLeft = examConfig.videoWaitTime;
+            
+            // 確保覆蓋層顯示在最上層
             videoOverlay.style.display = 'flex';
+            videoOverlay.style.zIndex = '1000';
+            
             phaseIndicator.textContent = '準備中';
             videoStatus.textContent = '請準備觀看手語影片...';
+            countdown.textContent = `${phaseTimeLeft + 1} 秒後開始播放`;
+            progressBar.style.width = '0%';
             
             // 修正：準備階段顯示禁用的選項
             canSelectAnswer = false;
             canProceedNext = false;
             displayOptions(questions[currentQuestion].options, true);
+            
+            console.log('準備階段開始，倒數:', phaseTimeLeft + 1, '秒');
         }
 
         // 更新階段
@@ -1040,10 +1048,17 @@
             questionPhase = 'answering';
             phaseTimeLeft = examConfig.answerTime;
             
-            // 確保影片覆蓋層顯示
-            videoOverlay.style.display = 'flex';
+            // 確保影片覆蓋層顯示並在最上層
+            const videoOverlayElement = document.getElementById('videoOverlay');
+            if (videoOverlayElement) {
+                videoOverlayElement.style.display = 'flex';
+                videoOverlayElement.style.zIndex = '1000';
+            }
+            
+            // 更新顯示內容
             phaseIndicator.textContent = '答題中';
             videoStatus.textContent = '請選擇正確答案';
+            countdown.textContent = `答題時間剩餘：${phaseTimeLeft} 秒`;
             
             // 重置進度條為答題進度
             progressBar.style.width = '0%';
