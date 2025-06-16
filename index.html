@@ -187,13 +187,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             color: white;
-            z-index: 10;
+            z-index: 1000;
+            pointer-events: auto;
         }
 
         .video-status {
@@ -230,6 +231,65 @@
             border-left: 3px solid #e0e0e0;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        /* 新增：獨立的階段狀態顯示區 */
+        .phase-status-bar {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            padding: 15px 20px;
+            margin: -30px -30px 20px -30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .phase-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .phase-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .phase-countdown {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .phase-progress {
+            width: 200px;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+
+        .phase-progress-bar {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+            transition: width 0.3s ease;
         }
 
         .question-header {
@@ -557,6 +617,18 @@
             </div>
 
             <div class="question-section">
+                <!-- 新增：獨立的階段狀態顯示 -->
+                <div class="phase-status-bar" id="phaseStatusBar">
+                    <div class="phase-info">
+                        <div class="phase-icon" id="phaseIcon"></div>
+                        <span id="phaseStatusText">準備中</span>
+                    </div>
+                    <div class="phase-progress" id="phaseProgress">
+                        <div class="phase-progress-bar" id="phaseProgressBar"></div>
+                    </div>
+                    <div class="phase-countdown" id="phaseCountdown">準備開始</div>
+                </div>
+
                 <div class="question-header">
                     <div class="question-number" id="questionNumber">第 1 題</div>
                     <div class="question-progress" id="questionProgress">臺灣手語測驗 第1題/共4題</div>
@@ -1102,7 +1174,12 @@
             nextBtn.disabled = false;
             
             // 更新顯示
-            videoOverlay.style.display = 'flex';
+            const videoOverlayElement = document.getElementById('videoOverlay');
+            if (videoOverlayElement) {
+                videoOverlayElement.style.display = 'flex';
+                videoOverlayElement.style.zIndex = '1000';
+            }
+            
             phaseIndicator.textContent = '答題完成';
             videoStatus.textContent = '本題答題時間已結束，請點擊下一題';
             countdown.textContent = '可以進入下一題了';
@@ -1112,6 +1189,8 @@
             if (currentQuestion === questions.length - 1) {
                 videoStatus.textContent = '所有題目已完成，請點擊完成測驗或交卷';
             }
+            
+            console.log('答題階段結束，可以進入下一題');
         }
 
         // 自動進入下一題（僅在時間到且未手動操作時使用）
