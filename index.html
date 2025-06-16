@@ -187,14 +187,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.7);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             color: white;
-            z-index: 1000;
-            pointer-events: auto;
+            z-index: 10;
         }
 
         .video-status {
@@ -231,65 +230,6 @@
             border-left: 3px solid #e0e0e0;
             display: flex;
             flex-direction: column;
-            position: relative;
-        }
-
-        /* 新增：獨立的階段狀態顯示區 */
-        .phase-status-bar {
-            background: linear-gradient(135deg, #4a90e2, #357abd);
-            color: white;
-            padding: 15px 20px;
-            margin: -30px -30px 20px -30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .phase-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .phase-icon {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #fff;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .phase-countdown {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            min-width: 120px;
-            text-align: center;
-        }
-
-        .phase-progress {
-            width: 200px;
-            height: 6px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 0 15px;
-        }
-
-        .phase-progress-bar {
-            height: 100%;
-            background: #fff;
-            width: 0%;
-            transition: width 0.3s ease;
         }
 
         .question-header {
@@ -551,7 +491,7 @@
                     <li>每題影片僅播放<strong>一次</strong>，無法暫停或重播</li>
                     <li>無法返回上一題，請仔細作答</li>
                     <li>每題答題時間限制：<strong>20秒</strong></li>
-                    <li><strong>準備階段無法選擇答案，影片播放時可選擇答案</strong></li>
+                    <li><strong>準備階段無法選擇答案，請等待影片播放完畢</strong></li>
                     <li><strong>答題時間結束後才可進入下一題</strong></li>
                     <li>考試結束請務必點擊「交卷」按鈕</li>
                 </ul>
@@ -617,18 +557,6 @@
             </div>
 
             <div class="question-section">
-                <!-- 新增：獨立的階段狀態顯示 -->
-                <div class="phase-status-bar" id="phaseStatusBar">
-                    <div class="phase-info">
-                        <div class="phase-icon" id="phaseIcon"></div>
-                        <span id="phaseStatusText">準備中</span>
-                    </div>
-                    <div class="phase-progress" id="phaseProgress">
-                        <div class="phase-progress-bar" id="phaseProgressBar"></div>
-                    </div>
-                    <div class="phase-countdown" id="phaseCountdown">準備開始</div>
-                </div>
-
                 <div class="question-header">
                     <div class="question-number" id="questionNumber">第 1 題</div>
                     <div class="question-progress" id="questionProgress">臺灣手語測驗 第1題/共4題</div>
@@ -646,7 +574,7 @@
 
         <div class="warning-notice" style="display: none;" id="warningNotice">
             <strong>⚠️ 重要提醒：</strong> 
-            本測驗為單向進行，無法返回上一題。影片僅播放一次，無法暫停或重播。<strong>準備階段無法選擇答案，影片播放時可開始選擇答案。答題時間結束後才能進入下一題。</strong>請仔細觀看並及時作答。考試結束時請務必點擊「交卷」按鈕，未點擊將無法記錄答案。
+            本測驗為單向進行，無法返回上一題。影片僅播放一次，無法暫停或重播。<strong>準備階段無法選擇答案，需等待影片播放完畢後才能作答。答題時間結束後才能進入下一題。</strong>請仔細觀看並及時作答。考試結束時請務必點擊「交卷」按鈕，未點擊將無法記錄答案。
         </div>
 
         <div class="navigation" style="display: none;" id="navigation">
@@ -682,32 +610,28 @@
             {
                 id: 1,
                 title: "姊姊每天練習什麼三小時？",
-                videoType: "youtube",
-                youtubeId: "n7wZYa3xSmk",
+                videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
                 options: ["寫書法", "畫畫", "唱歌", "跳舞"],
                 correctAnswer: 0
             },
             {
                 id: 2,
                 title: "爸爸喜歡哪一種飲料？",
-                videoType: "youtube",
-                youtubeId: "n7wZYa3xSmk", // 您可以替換成其他影片 ID
+                videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
                 options: ["牛奶", "咖啡", "水", "茶"],
                 correctAnswer: 1
             },
             {
                 id: 3,
                 title: "哥哥做什麼運動？",
-                videoType: "youtube",
-                youtubeId: "n7wZYa3xSmk", // 您可以替換成其他影片 ID
+                videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
                 options: ["高爾夫", "游泳", "門球", "籃球"],
                 correctAnswer: 2
             },
             {
                 id: 4,
                 title: "張老師現在心情如何?",
-                videoType: "youtube",
-                youtubeId: "n7wZYa3xSmk", // 您可以替換成其他影片 ID
+                videoUrl: "https://github.com/chuang1985/TSL-TEST/raw/main/video1.mp4",
                 options: ["生氣", "驚訝", "困擾", "疲累"],
                 correctAnswer: 3
             }
@@ -741,14 +665,6 @@
         const optionsList = document.getElementById('optionsList');
         const navInfo = document.getElementById('navInfo');
         const nextBtn = document.getElementById('nextBtn');
-        
-        // 新增：獨立階段狀態 DOM 元素
-        const phaseStatusBar = document.getElementById('phaseStatusBar');
-        const phaseStatusText = document.getElementById('phaseStatusText');
-        const phaseCountdown = document.getElementById('phaseCountdown');
-        const phaseProgress = document.getElementById('phaseProgress');
-        const phaseProgressBar = document.getElementById('phaseProgressBar');
-        const phaseIcon = document.getElementById('phaseIcon');
 
         // 取得IP位置
         async function getIPAddress() {
@@ -809,15 +725,10 @@
 
         // 初始化考試
         function initExam() {
-            // 清除舊計時器
-            if (timerInterval) clearInterval(timerInterval);
-            if (phaseInterval) clearInterval(phaseInterval);
-            
-            // 設定題目
             displayQuestion();
             startQuestionPhase();
+            updateTimer();
             
-            // 啟動計時器
             timerInterval = setInterval(updateTimer, 1000);
             phaseInterval = setInterval(updatePhase, 1000);
         }
@@ -831,42 +742,25 @@
             questionTitle.textContent = question.title;
             navInfo.textContent = `第 ${question.id} 題 / 共 ${questions.length} 題`;
             
-            // 清空影片容器
-            const videoContainer = document.querySelector('.video-container');
+            videoPlayer.src = '';
+            videoPlayer.load();
             
-            // 根據影片類型載入不同的播放器
-            if (question.videoType === "youtube") {
-                // 載入 YouTube 影片 - 將在 startVideoPhase 中使用 API 控制
-                videoContainer.innerHTML = '<div id="youtubePlayerContainer"></div>';
-            } else {
-                // 載入一般 MP4 影片
-                videoContainer.innerHTML = `
-                    <video class="video-player" id="videoPlayer" preload="auto">
-                        <!-- 這裡會動態載入影片 -->
-                    </video>
-                `;
-                
-                const videoPlayer = document.getElementById('videoPlayer');
-                videoPlayer.src = '';
+            setTimeout(() => {
+                videoPlayer.src = question.videoUrl + '?t=' + new Date().getTime();
                 videoPlayer.load();
                 
-                setTimeout(() => {
-                    videoPlayer.src = question.videoUrl + '?t=' + new Date().getTime();
-                    videoPlayer.load();
-                    
-                    videoPlayer.onloadeddata = function() {
-                        console.log('影片載入成功');
-                    };
-                    
-                    videoPlayer.onerror = function() {
-                        console.log('影片載入失敗，重試中...');
-                        setTimeout(() => {
-                            videoPlayer.src = question.videoUrl + '?retry=' + Math.random();
-                            videoPlayer.load();
-                        }, 1000);
-                    };
-                }, 500);
-            }
+                videoPlayer.onloadeddata = function() {
+                    console.log('影片載入成功');
+                };
+                
+                videoPlayer.onerror = function() {
+                    console.log('影片載入失敗，重試中...');
+                    setTimeout(() => {
+                        videoPlayer.src = question.videoUrl + '?retry=' + Math.random();
+                        videoPlayer.load();
+                    }, 1000);
+                };
+            }, 500);
             
             // 修正：一開始顯示禁用的選項
             displayOptions(question.options, true);
@@ -914,60 +808,15 @@
         function startQuestionPhase() {
             questionPhase = 'waiting';
             phaseTimeLeft = examConfig.videoWaitTime;
+            videoOverlay.style.display = 'flex';
+            phaseIndicator.textContent = '準備中';
+            videoStatus.textContent = '請準備觀看手語影片...';
             
-            // 立即更新顯示
-            updatePhaseDisplay();
-            
-            // 準備階段設定
+            // 修正：準備階段顯示禁用的選項
             canSelectAnswer = false;
             canProceedNext = false;
             displayOptions(questions[currentQuestion].options, true);
-            
-            // 顯示影片覆蓋層
-            videoOverlay.style.display = 'flex';
-            videoOverlay.style.zIndex = '1000';
-            phaseIndicator.textContent = '準備中';
-            videoStatus.textContent = '請準備觀看手語影片...';
         }
-
-        // 新增：統一更新階段顯示的函數
-        function updatePhaseDisplay() {
-            const phaseStatusTextEl = document.getElementById('phaseStatusText');
-            const phaseCountdownEl = document.getElementById('phaseCountdown');
-            const phaseProgressBarEl = document.getElementById('phaseProgressBar');
-            const phaseIconEl = document.getElementById('phaseIcon');
-            
-            if (questionPhase === 'waiting') {
-                const countdownText = `${phaseTimeLeft + 1} 秒後開始播放`;
-                const progress = ((examConfig.videoWaitTime - phaseTimeLeft) / examConfig.videoWaitTime) * 100;
-                
-                if (phaseStatusTextEl) phaseStatusTextEl.textContent = '準備中';
-                if (phaseCountdownEl) phaseCountdownEl.textContent = countdownText;
-                if (phaseProgressBarEl) phaseProgressBarEl.style.width = `${progress}%`;
-                if (phaseIconEl) phaseIconEl.style.backgroundColor = '#ff9800';
-                if (countdown) countdown.textContent = countdownText;
-                if (progressBar) progressBar.style.width = `${progress}%`;
-                
-            } else if (questionPhase === 'playing') {
-                if (phaseStatusTextEl) phaseStatusTextEl.textContent = '播放中';
-                if (phaseCountdownEl) phaseCountdownEl.textContent = '影片播放中...';
-                if (phaseIconEl) phaseIconEl.style.backgroundColor = '#4caf50';
-                if (countdown) countdown.textContent = '影片播放中...';
-                
-            } else if (questionPhase === 'answering') {
-                const countdownText = `答題時間剩餘：${phaseTimeLeft} 秒`;
-                const progress = ((examConfig.answerTime - phaseTimeLeft) / examConfig.answerTime) * 100;
-                
-                if (phaseStatusTextEl) phaseStatusTextEl.textContent = '答題中';
-                if (phaseCountdownEl) phaseCountdownEl.textContent = countdownText;
-                if (phaseProgressBarEl) phaseProgressBarEl.style.width = `${progress}%`;
-                if (phaseIconEl) phaseIconEl.style.backgroundColor = '#2196f3';
-                if (countdown) countdown.textContent = countdownText;
-                if (progressBar) progressBar.style.width = `${progress}%`;
-            }
-        }
-
-        // 刪除複雜的 updatePhaseStatus 函數，改用簡單的 updatePhaseDisplay
 
         // 更新階段
         function updatePhase() {
@@ -1017,152 +866,28 @@
             canSelectAnswer = true;
             displayOptions(questions[currentQuestion].options, false);
             
-            const question = questions[currentQuestion];
+            videoPlayer.oncanplay = function() {
+                videoPlayer.play().catch(e => {
+                    console.log('自動播放失敗，但這是正常的');
+                });
+            };
+
+            if (videoPlayer.readyState >= 3) {
+                videoPlayer.play().catch(e => {
+                    console.log('自動播放失敗，但這是正常的');
+                });
+            }
             
-            if (question.videoType === "youtube") {
-                // YouTube 影片處理 - 使用 YouTube IFrame API
-                loadYouTubePlayer(question.youtubeId);
-            } else {
-                // 一般 MP4 影片處理
-                const videoPlayer = document.getElementById('videoPlayer');
-                
-                videoPlayer.oncanplay = function() {
-                    videoPlayer.play().catch(e => {
-                        console.log('自動播放失敗，但這是正常的');
-                    });
-                };
-
-                if (videoPlayer.readyState >= 3) {
-                    videoPlayer.play().catch(e => {
-                        console.log('自動播放失敗，但這是正常的');
-                    });
-                }
-                
-                videoPlayer.onended = function() {
-                    startAnswerPhase();
-                };
-                
-                videoPlayer.ontimeupdate = function() {
-                    if (videoPlayer.duration) {
-                        const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-                        progressBar.style.width = `${progress}%`;
-                    }
-                };
-            }
-        }
-
-        // 新增：載入 YouTube 播放器並監聽結束事件
-        function loadYouTubePlayer(videoId) {
-            // 載入 YouTube IFrame API
-            if (!window.YT) {
-                const tag = document.createElement('script');
-                tag.src = 'https://www.youtube.com/iframe_api';
-                const firstScriptTag = document.getElementsByTagName('script')[0];
-                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-                
-                // 等待 API 載入完成
-                window.onYouTubeIframeAPIReady = function() {
-                    createYouTubePlayer(videoId);
-                };
-            } else {
-                createYouTubePlayer(videoId);
-            }
-        }
-
-        // 新增：建立 YouTube 播放器
-        function createYouTubePlayer(videoId) {
-            const videoContainer = document.querySelector('.video-container');
-            videoContainer.innerHTML = '<div id="youtubePlayer"></div>';
+            videoPlayer.onended = function() {
+                startAnswerPhase();
+            };
             
-            window.ytPlayer = new YT.Player('youtubePlayer', {
-                height: '100%',
-                width: '100%',
-                videoId: videoId,
-                playerVars: {
-                    'autoplay': 1,
-                    'controls': 0,           // 隱藏控制列
-                    'disablekb': 1,          // 禁用鍵盤控制
-                    'fs': 0,                 // 禁用全螢幕
-                    'modestbranding': 1,     // 減少 YouTube 品牌標示
-                    'rel': 0,                // 不顯示相關影片
-                    'showinfo': 0,           // 隱藏影片資訊
-                    'iv_load_policy': 3,     // 隱藏影片註解
-                    'cc_load_policy': 0,     // 隱藏字幕
-                    'playsinline': 1,        // 行動裝置內嵌播放
-                    'widget_referrer': window.location.href,  // 設定來源
-                    'origin': window.location.origin,         // 設定來源網域
-                    'enablejsapi': 1         // 啟用 JavaScript API
-                },
-                events: {
-                    'onReady': function(event) {
-                        event.target.playVideo();
-                        console.log('YouTube 播放器準備完成');
-                    },
-                    'onStateChange': function(event) {
-                        console.log('YouTube 播放器狀態變更:', event.data);
-                        
-                        // 當影片結束時 (狀態碼 0)
-                        if (event.data === YT.PlayerState.ENDED) {
-                            console.log('影片播放結束，進入答題階段');
-                            // 立即隱藏播放器，避免看到相關影片
-                            hideYouTubePlayer();
-                            startAnswerPhase();
-                        }
-                        
-                        // 當影片開始播放時 (狀態碼 1)
-                        if (event.data === YT.PlayerState.PLAYING) {
-                            updateYouTubeProgress();
-                        }
-                        
-                        // 當影片暫停時 (狀態碼 2) - 可選：自動繼續播放
-                        if (event.data === YT.PlayerState.PAUSED) {
-                            console.log('影片被暫停');
-                        }
-                    },
-                    'onError': function(event) {
-                        console.error('YouTube 播放器錯誤:', event.data);
-                        // 如果載入失敗，直接進入答題階段
-                        hideYouTubePlayer();
-                        startAnswerPhase();
-                    }
+            videoPlayer.ontimeupdate = function() {
+                if (videoPlayer.duration) {
+                    const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
                 }
-            });
-        }
-
-        // 新增：隱藏 YouTube 播放器
-        function hideYouTubePlayer() {
-            const videoContainer = document.querySelector('.video-container');
-            if (window.ytPlayer && typeof window.ytPlayer.destroy === 'function') {
-                try {
-                    window.ytPlayer.destroy();
-                    console.log('YouTube 播放器已銷毀');
-                } catch (e) {
-                    console.log('銷毀播放器時出現錯誤，但這是正常的');
-                }
-            }
-            // 清空容器內容
-            videoContainer.innerHTML = '';
-        }
-
-        // 新增：更新 YouTube 影片進度條
-        function updateYouTubeProgress() {
-            if (window.ytPlayer && typeof window.ytPlayer.getCurrentTime === 'function') {
-                const updateProgress = () => {
-                    if (questionPhase === 'playing') {
-                        const currentTime = window.ytPlayer.getCurrentTime();
-                        const duration = window.ytPlayer.getDuration();
-                        
-                        if (duration > 0) {
-                            const progress = (currentTime / duration) * 100;
-                            progressBar.style.width = `${progress}%`;
-                        }
-                        
-                        // 繼續更新，直到影片結束
-                        setTimeout(updateProgress, 1000);
-                    }
-                };
-                updateProgress();
-            }
+            };
         }
 
         // 開始答題階段
@@ -1170,20 +895,15 @@
             questionPhase = 'answering';
             phaseTimeLeft = examConfig.answerTime;
             
-            // 立即更新顯示
-            updatePhaseDisplay();
-            
-            // 顯示覆蓋層
             videoOverlay.style.display = 'flex';
-            videoOverlay.style.zIndex = '1000';
             phaseIndicator.textContent = '答題中';
             videoStatus.textContent = '請選擇正確答案';
             
-            // 啟用選項
+            // 修正：答題階段才啟用選項
             canSelectAnswer = true;
             displayOptions(questions[currentQuestion].options, false);
             
-            // 恢復之前的選擇
+            // 如果之前有選過答案，恢復選擇狀態
             if (answers[currentQuestion] !== undefined) {
                 const radio = document.querySelector(`input[value="${answers[currentQuestion]}"]`);
                 if (radio) {
@@ -1200,19 +920,10 @@
             canSelectAnswer = false;
             canProceedNext = true;
             
-            // 更新顯示
-            const phaseStatusTextEl = document.getElementById('phaseStatusText');
-            const phaseCountdownEl = document.getElementById('phaseCountdown');
-            const phaseProgressBarEl = document.getElementById('phaseProgressBar');
-            const phaseIconEl = document.getElementById('phaseIcon');
-            
-            if (phaseStatusTextEl) phaseStatusTextEl.textContent = '答題完成';
-            if (phaseCountdownEl) phaseCountdownEl.textContent = '可以進入下一題了';
-            if (phaseProgressBarEl) phaseProgressBarEl.style.width = '100%';
-            if (phaseIconEl) phaseIconEl.style.backgroundColor = '#4caf50';
-            
-            // 禁用選項但保持選擇狀態
+            // 禁用所有選項
             displayOptions(questions[currentQuestion].options, true);
+            
+            // 如果有選擇答案，恢復顯示選擇狀態（但禁用）
             if (answers[currentQuestion] !== undefined) {
                 const radio = document.querySelector(`input[value="${answers[currentQuestion]}"]`);
                 if (radio) {
@@ -1224,17 +935,15 @@
             // 啟用下一題按鈕
             nextBtn.disabled = false;
             
-            // 更新影片區域
+            // 更新顯示
             videoOverlay.style.display = 'flex';
             phaseIndicator.textContent = '答題完成';
             videoStatus.textContent = '本題答題時間已結束，請點擊下一題';
             countdown.textContent = '可以進入下一題了';
-            if (progressBar) progressBar.style.width = '100%';
+            progressBar.style.width = '100%';
             
-            // 最後一題的特殊處理
+            // 如果是最後一題，提示可以交卷
             if (currentQuestion === questions.length - 1) {
-                if (phaseStatusTextEl) phaseStatusTextEl.textContent = '測驗完成';
-                if (phaseCountdownEl) phaseCountdownEl.textContent = '請點擊完成測驗';
                 videoStatus.textContent = '所有題目已完成，請點擊完成測驗或交卷';
             }
         }
