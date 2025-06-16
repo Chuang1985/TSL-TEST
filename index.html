@@ -809,49 +809,17 @@
 
         // 初始化考試
         function initExam() {
-            console.log('=== 開始初始化考試 ===');
+            // 清除舊計時器
+            if (timerInterval) clearInterval(timerInterval);
+            if (phaseInterval) clearInterval(phaseInterval);
             
-            // 重新取得 DOM 元素，確保它們存在
-            const phaseStatusTextElement = document.getElementById('phaseStatusText');
-            const phaseCountdownElement = document.getElementById('phaseCountdown');
-            const phaseProgressBarElement = document.getElementById('phaseProgressBar');
-            
-            console.log('DOM 元素檢查:');
-            console.log('phaseStatusText:', phaseStatusTextElement ? '存在' : '不存在');
-            console.log('phaseCountdown:', phaseCountdownElement ? '存在' : '不存在');
-            console.log('phaseProgressBar:', phaseProgressBarElement ? '存在' : '不存在');
-            
+            // 設定題目
             displayQuestion();
             startQuestionPhase();
             
-            // 清除之前的計時器
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                console.log('已清除舊的總計時器');
-            }
-            if (phaseInterval) {
-                clearInterval(phaseInterval);
-                console.log('已清除舊的階段計時器');
-            }
-            
-            // 啟動新的計時器
-            timerInterval = setInterval(() => {
-                console.log('總計時器執行中');
-                updateTimer();
-            }, 1000);
-            
-            phaseInterval = setInterval(() => {
-                console.log('階段計時器執行中, questionPhase:', questionPhase, 'phaseTimeLeft:', phaseTimeLeft);
-                updatePhase();
-            }, 1000);
-            
-            console.log('計時器已重新啟動');
-            
-            // 初始更新
-            updateTimer();
-            updatePhase();
-            
-            console.log('=== 初始化完成 ===');
+            // 啟動計時器
+            timerInterval = setInterval(updateTimer, 1000);
+            phaseInterval = setInterval(updatePhase, 1000);
         }
 
         // 顯示當前題目
@@ -944,58 +912,62 @@
 
         // 開始題目階段
         function startQuestionPhase() {
-            console.log('開始題目階段');
             questionPhase = 'waiting';
             phaseTimeLeft = examConfig.videoWaitTime;
             
-            console.log('準備階段時間:', phaseTimeLeft, '秒');
+            // 立即更新顯示
+            updatePhaseDisplay();
             
-            // 更新獨立的階段狀態顯示
-            const countdownText = `${phaseTimeLeft + 1} 秒後開始播放`;
-            updatePhaseStatus('準備中', countdownText, '#ff9800');
-            
-            // 確保覆蓋層顯示在最上層（用於影片區域）
-            videoOverlay.style.display = 'flex';
-            videoOverlay.style.zIndex = '1000';
-            
-            phaseIndicator.textContent = '準備中';
-            videoStatus.textContent = '請準備觀看手語影片...';
-            countdown.textContent = countdownText;
-            progressBar.style.width = '0%';
-            
-            // 修正：準備階段顯示禁用的選項
+            // 準備階段設定
             canSelectAnswer = false;
             canProceedNext = false;
             displayOptions(questions[currentQuestion].options, true);
             
-            console.log('準備階段設定完成，倒數:', phaseTimeLeft + 1, '秒');
+            // 顯示影片覆蓋層
+            videoOverlay.style.display = 'flex';
+            videoOverlay.style.zIndex = '1000';
+            phaseIndicator.textContent = '準備中';
+            videoStatus.textContent = '請準備觀看手語影片...';
         }
 
-        // 新增：更新獨立的階段狀態顯示
-        function updatePhaseStatus(statusText, countdownText, iconColor) {
-            console.log('更新階段狀態:', statusText, countdownText);
+        // 新增：統一更新階段顯示的函數
+        function updatePhaseDisplay() {
+            const phaseStatusTextEl = document.getElementById('phaseStatusText');
+            const phaseCountdownEl = document.getElementById('phaseCountdown');
+            const phaseProgressBarEl = document.getElementById('phaseProgressBar');
+            const phaseIconEl = document.getElementById('phaseIcon');
             
-            if (phaseStatusText) {
-                phaseStatusText.textContent = statusText;
-                console.log('狀態文字已更新:', statusText);
-            } else {
-                console.log('找不到 phaseStatusText 元素');
-            }
-            
-            if (phaseCountdown) {
-                phaseCountdown.textContent = countdownText;
-                console.log('倒數文字已更新:', countdownText);
-            } else {
-                console.log('找不到 phaseCountdown 元素');
-            }
-            
-            if (phaseIcon) {
-                phaseIcon.style.backgroundColor = iconColor;
-                console.log('圖示顏色已更新:', iconColor);
-            } else {
-                console.log('找不到 phaseIcon 元素');
+            if (questionPhase === 'waiting') {
+                const countdownText = `${phaseTimeLeft + 1} 秒後開始播放`;
+                const progress = ((examConfig.videoWaitTime - phaseTimeLeft) / examConfig.videoWaitTime) * 100;
+                
+                if (phaseStatusTextEl) phaseStatusTextEl.textContent = '準備中';
+                if (phaseCountdownEl) phaseCountdownEl.textContent = countdownText;
+                if (phaseProgressBarEl) phaseProgressBarEl.style.width = `${progress}%`;
+                if (phaseIconEl) phaseIconEl.style.backgroundColor = '#ff9800';
+                if (countdown) countdown.textContent = countdownText;
+                if (progressBar) progressBar.style.width = `${progress}%`;
+                
+            } else if (questionPhase === 'playing') {
+                if (phaseStatusTextEl) phaseStatusTextEl.textContent = '播放中';
+                if (phaseCountdownEl) phaseCountdownEl.textContent = '影片播放中...';
+                if (phaseIconEl) phaseIconEl.style.backgroundColor = '#4caf50';
+                if (countdown) countdown.textContent = '影片播放中...';
+                
+            } else if (questionPhase === 'answering') {
+                const countdownText = `答題時間剩餘：${phaseTimeLeft} 秒`;
+                const progress = ((examConfig.answerTime - phaseTimeLeft) / examConfig.answerTime) * 100;
+                
+                if (phaseStatusTextEl) phaseStatusTextEl.textContent = '答題中';
+                if (phaseCountdownEl) phaseCountdownEl.textContent = countdownText;
+                if (phaseProgressBarEl) phaseProgressBarEl.style.width = `${progress}%`;
+                if (phaseIconEl) phaseIconEl.style.backgroundColor = '#2196f3';
+                if (countdown) countdown.textContent = countdownText;
+                if (progressBar) progressBar.style.width = `${progress}%`;
             }
         }
+
+        // 刪除複雜的 updatePhaseStatus 函數，改用簡單的 updatePhaseDisplay
 
         // 更新階段
         function updatePhase() {
@@ -1198,30 +1170,20 @@
             questionPhase = 'answering';
             phaseTimeLeft = examConfig.answerTime;
             
-            // 更新獨立的階段狀態顯示
-            updatePhaseStatus('答題中', `答題時間剩餘：${phaseTimeLeft} 秒`, '#2196f3');
+            // 立即更新顯示
+            updatePhaseDisplay();
             
-            // 確保影片覆蓋層顯示並在最上層
-            const videoOverlayElement = document.getElementById('videoOverlay');
-            if (videoOverlayElement) {
-                videoOverlayElement.style.display = 'flex';
-                videoOverlayElement.style.zIndex = '1000';
-            }
-            
-            // 更新顯示內容
+            // 顯示覆蓋層
+            videoOverlay.style.display = 'flex';
+            videoOverlay.style.zIndex = '1000';
             phaseIndicator.textContent = '答題中';
             videoStatus.textContent = '請選擇正確答案';
-            countdown.textContent = `答題時間剩餘：${phaseTimeLeft} 秒`;
             
-            // 重置進度條為答題進度
-            if (progressBar) progressBar.style.width = '0%';
-            if (phaseProgressBar) phaseProgressBar.style.width = '0%';
-            
-            // 修正：答題階段才啟用選項
+            // 啟用選項
             canSelectAnswer = true;
             displayOptions(questions[currentQuestion].options, false);
             
-            // 如果之前有選過答案，恢復選擇狀態
+            // 恢復之前的選擇
             if (answers[currentQuestion] !== undefined) {
                 const radio = document.querySelector(`input[value="${answers[currentQuestion]}"]`);
                 if (radio) {
@@ -1230,8 +1192,6 @@
                     currentAnswer = answers[currentQuestion];
                 }
             }
-            
-            console.log('答題階段開始，時間限制:', examConfig.answerTime, '秒');
         }
 
         // 新增：答題階段結束處理
@@ -1240,13 +1200,19 @@
             canSelectAnswer = false;
             canProceedNext = true;
             
-            // 更新獨立的階段狀態顯示
-            updatePhaseStatus('答題完成', '可以進入下一題了', '#4caf50');
+            // 更新顯示
+            const phaseStatusTextEl = document.getElementById('phaseStatusText');
+            const phaseCountdownEl = document.getElementById('phaseCountdown');
+            const phaseProgressBarEl = document.getElementById('phaseProgressBar');
+            const phaseIconEl = document.getElementById('phaseIcon');
             
-            // 禁用所有選項
+            if (phaseStatusTextEl) phaseStatusTextEl.textContent = '答題完成';
+            if (phaseCountdownEl) phaseCountdownEl.textContent = '可以進入下一題了';
+            if (phaseProgressBarEl) phaseProgressBarEl.style.width = '100%';
+            if (phaseIconEl) phaseIconEl.style.backgroundColor = '#4caf50';
+            
+            // 禁用選項但保持選擇狀態
             displayOptions(questions[currentQuestion].options, true);
-            
-            // 如果有選擇答案，恢復顯示選擇狀態（但禁用）
             if (answers[currentQuestion] !== undefined) {
                 const radio = document.querySelector(`input[value="${answers[currentQuestion]}"]`);
                 if (radio) {
@@ -1258,28 +1224,19 @@
             // 啟用下一題按鈕
             nextBtn.disabled = false;
             
-            // 更新顯示
-            const videoOverlayElement = document.getElementById('videoOverlay');
-            if (videoOverlayElement) {
-                videoOverlayElement.style.display = 'flex';
-                videoOverlayElement.style.zIndex = '1000';
-            }
-            
+            // 更新影片區域
+            videoOverlay.style.display = 'flex';
             phaseIndicator.textContent = '答題完成';
             videoStatus.textContent = '本題答題時間已結束，請點擊下一題';
             countdown.textContent = '可以進入下一題了';
-            
-            // 完成進度條
             if (progressBar) progressBar.style.width = '100%';
-            if (phaseProgressBar) phaseProgressBar.style.width = '100%';
             
-            // 如果是最後一題，提示可以交卷
+            // 最後一題的特殊處理
             if (currentQuestion === questions.length - 1) {
-                updatePhaseStatus('測驗完成', '請點擊完成測驗', '#4caf50');
+                if (phaseStatusTextEl) phaseStatusTextEl.textContent = '測驗完成';
+                if (phaseCountdownEl) phaseCountdownEl.textContent = '請點擊完成測驗';
                 videoStatus.textContent = '所有題目已完成，請點擊完成測驗或交卷';
             }
-            
-            console.log('答題階段結束，可以進入下一題');
         }
 
         // 自動進入下一題（僅在時間到且未手動操作時使用）
